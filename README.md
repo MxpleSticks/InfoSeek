@@ -12,7 +12,7 @@ I wanted a search page that was:
 
 ## How It Works
 
-Type your query, hit enter, and boom! You're on your way. Click 'Feeling Lucky' and let Google decide!
+Type your query, hit enter, and boom! You're on your way.
 
 ## Built With
 

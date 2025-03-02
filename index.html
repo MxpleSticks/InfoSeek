@@ -551,20 +551,20 @@
             // Add the exact query
             suggestions.push(query);
             
-            // Add common completions
-            for (let i = 0; i < 5; i++) {
+            // Add common completions (limit to 3 random completions)
+            for (let i = 0; i < 3; i++) {
                 const randomCompletion = commonCompletions[Math.floor(Math.random() * commonCompletions.length)];
                 suggestions.push(query + randomCompletion);
             }
             
-            // Add related queries (just examples for demonstration)
+            // Add only one related query if there are multiple words
             const words = query.split(' ');
             if (words.length > 1) {
-                suggestions.push(words[0] + " guide");
                 suggestions.push("how to " + query);
             }
             
-            return [...new Set(suggestions)]; // Remove duplicates
+            // Remove duplicates and limit to 5 results
+            return [...new Set(suggestions)].slice(0, 5);
         }
 
         // Display suggestions in the dropdown with staggered animation

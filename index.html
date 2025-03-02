@@ -450,6 +450,35 @@
         .bookmark-item button:hover {
             color: var(--primary-color);
         }
+
+        .engine-selector {
+            display: flex;
+            gap: 10px;
+            padding: 8px 15px;
+            border-top: 1px solid var(--suggestions-border);
+            background-color: var(--suggestions-bg);
+        }
+
+        .engine-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            color: var(--text-color);
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .engine-btn:hover {
+            background-color: var(--suggestions-hover);
+            color: var(--primary-color);
+        }
+
+        .engine-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
     </style>
 </head>
 
@@ -598,12 +627,13 @@
                 return;
             }
 
-            const baseUrl = isLucky
-                ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
-                : 'https://www.google.com/search?q=' + encodeURIComponent(query);
+            const engine = searchEngines[currentEngine];
+            const searchUrl = isLucky ? 
+                engine.luckyUrl.replace('{q}', encodeURIComponent(query)) :
+                engine.url + encodeURIComponent(query);
 
             // Immediate navigation without delay
-            window.location.href = baseUrl;
+            window.location.href = searchUrl;
         }
 
         // Function to update search history
@@ -619,7 +649,7 @@
         }
 
         // Function to get top searches
-        function getTopSearches(limit = 5) {
+        function getTopSearches(limit = 4) {
             const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || {};
 
             // Convert to array of [query, count] pairs
@@ -661,8 +691,8 @@
                     let suggestions = [];
 
                     if (query === '') {
-                        // When input is empty, show top 5 searches
-                        suggestions = getTopSearches(5);
+                        // When input is empty, show top 4 searches
+                        suggestions = getTopSearches(4);
                     } else {
                         // Get all searches that match the query
                         const allSearches = getAllSearches();
@@ -688,8 +718,8 @@
                         }
                     }
 
-                    // Limit to max 5 suggestions
-                    suggestions = suggestions.slice(0, 5);
+                    // Limit to max 4 suggestions
+                    suggestions = suggestions.slice(0, 4);
 
                     prefetchedResults[query] = suggestions;
                     displaySuggestions(suggestions, query);
@@ -736,6 +766,27 @@
                     element.classList.add('visible');
                 }, 50 * index);
             });
+
+            // Add engine selector if not already present
+            if (!document.querySelector('.engine-selector')) {
+                const engineSelector = document.createElement('div');
+                engineSelector.className = 'engine-selector';
+                
+                Object.keys(searchEngines).forEach(engineKey => {
+                    const btn = document.createElement('button');
+                    btn.className = `engine-btn ${engineKey === currentEngine ? 'active' : ''}`;
+                    btn.textContent = searchEngines[engineKey].name;
+                    btn.onclick = () => {
+                        currentEngine = engineKey;
+                        localStorage.setItem('searchEngine', engineKey);
+                        document.querySelectorAll('.engine-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    };
+                    engineSelector.appendChild(btn);
+                });
+                
+                suggestionsContainer.appendChild(engineSelector);
+            }
         }
 
         function highlightMatch(text, query) {
@@ -762,7 +813,7 @@
             typingTimer = setTimeout(() => {
                 const prefetchLink = document.createElement('link');
                 prefetchLink.rel = 'prefetch';
-                prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                prefetchLink.href = searchEngines[currentEngine].url + encodeURIComponent(query);
                 document.head.appendChild(prefetchLink);
 
                 setTimeout(() => {
@@ -1054,6 +1105,46 @@
             resetSelection();
             originalDisplayBookmarks();
         };
+
+        // Define search engines
+        const searchEngines = {
+            google: {
+                name: 'Google',
+                url: 'https://www.google.com/search?q=',
+                luckyUrl: 'https://www.google.com/search?q={q}&btnI'
+            },
+            duckduckgo: {
+                name: 'DuckDuckGo',
+                url: 'https://duckduckgo.com/?q=',
+                luckyUrl: 'https://duckduckgo.com/?q=\\{q}'
+            },
+            bing: {
+                name: 'Bing',
+                url: 'https://www.bing.com/search?q=',
+                luckyUrl: 'https://www.bing.com/search?q={q}'
+            }
+        };
+
+        // Get/Set default search engine
+        let currentEngine = localStorage.getItem('searchEngine') || 'google';
+
+        // Update prefetchGoogle function to use current engine
+        function prefetchGoogle(query) {
+            if (query.length < 3) return;
+
+            clearTimeout(typingTimer);
+
+            typingTimer = setTimeout(() => {
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = searchEngines[currentEngine].url + encodeURIComponent(query);
+                document.head.appendChild(prefetchLink);
+
+                setTimeout(() => {
+                    document.head.removeChild(prefetchLink);
+                }, 10000);
+            }, 500);
+        }
     </script>
 </body>
 

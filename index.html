@@ -974,6 +974,31 @@
                 suggestionsContainer : bookmarksContainer.classList.contains('visible') ? 
                 bookmarksContainer : null;
 
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (activeContainer && selectedIndex >= 0) {
+                    // Handle selected item from suggestions or bookmarks
+                    const items = activeContainer.children;
+                    if (activeContainer === suggestionsContainer) {
+                        const suggestion = items[selectedIndex].textContent.replace('★', '').trim();
+                        searchInput.value = suggestion;
+                        performSearch(suggestion, false);
+                    } else {
+                        const url = items[selectedIndex].querySelector('.bookmark-link').getAttribute('data-url');
+                        performSearch(url, false);
+                    }
+                    activeContainer.classList.remove('visible');
+                    selectedIndex = -1;
+                } else {
+                    // Perform direct search with current input value
+                    performSearch(searchInput.value.trim(), false);
+                    if (activeContainer) {
+                        activeContainer.classList.remove('visible');
+                    }
+                }
+                return;
+            }
+
             if (!activeContainer) return;
 
             const items = activeContainer.children;
@@ -989,24 +1014,6 @@
                     e.preventDefault();
                     selectedIndex = Math.max(selectedIndex - 1, -1);
                     updateSelection(items);
-                    break;
-                    
-                case 'Enter':
-                    e.preventDefault();
-                    if (selectedIndex >= 0 && selectedIndex < items.length) {
-                        if (activeContainer === suggestionsContainer) {
-                            // For suggestions
-                            const suggestion = items[selectedIndex].textContent.replace('★', '').trim();
-                            searchInput.value = suggestion;
-                            performSearch(suggestion, false);
-                        } else {
-                            // For bookmarks
-                            const url = items[selectedIndex].querySelector('.bookmark-link').getAttribute('data-url');
-                            performSearch(url, false);
-                        }
-                        activeContainer.classList.remove('visible');
-                        selectedIndex = -1;
-                    }
                     break;
                     
                 case 'Escape':

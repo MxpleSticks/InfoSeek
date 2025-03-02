@@ -121,7 +121,7 @@
 
         input {
             width: 100%;
-            padding: 12px 45px 12px 15px;
+            padding: 12px 15px;
             font-size: 16px;
             border: 1px solid var(--input-border);
             background-color: var(--input-bg);
@@ -129,17 +129,24 @@
             border-radius: 6px;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
+            text-align: left; /* Ensure text alignment is left */
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         input::placeholder {
             color: var(--placeholder-color);
+            transition: opacity 0.3s ease;
+            text-align: left; /* Ensure placeholder alignment is left */
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+        }
+
+        input:focus::placeholder {
+            opacity: 0.5;
         }
 
         .search-button {
@@ -153,33 +160,13 @@
             padding: 8px;
             color: var(--text-color);
             transition: transform 0.2s ease, color 0.2s ease;
+            z-index: 1;
         }
 
         .search-button:hover {
             transform: translateY(-50%) scale(1.2);
             color: var(--primary-color);
-        }
-
-        .search-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .search-buttons button {
-            background: none;
-            border: 1px solid var(--input-border);
-            color: var(--text-color);
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-
-        .search-buttons button:hover {
-            background-color: var(--input-bg);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            z-index: 1;
         }
 
         .footer {
@@ -206,28 +193,44 @@
 
         .logo-container {
             margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(-20px);
+            animation: fadeInDown 0.8s forwards;
         }
 
         /* Auto-search suggestions styles */
         .suggestions-container {
             position: absolute;
             width: 100%;
-            max-height: 250px;
-            overflow-y: auto;
+            max-height: 0;
+            overflow-y: hidden;
             background-color: var(--suggestions-bg);
             border: 1px solid var(--suggestions-border);
             border-radius: 6px;
             margin-top: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 10;
-            display: none;
+            z-index: 1000; /* Increased z-index to ensure it's always on top */
             text-align: left;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+        }
+
+        .suggestions-container.visible {
+            max-height: 250px;
+            opacity: 1;
         }
 
         .suggestion-item {
             padding: 10px 15px;
             cursor: pointer;
-            transition: background-color 0.2s ease;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .suggestion-item.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .suggestion-item:hover {
@@ -239,6 +242,94 @@
             color: var(--primary-color);
         }
 
+        /* Typing animation */
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+
+        @keyframes blink {
+            50% { border-color: transparent }
+        }
+
+        /* Key press animation */
+        @keyframes keyPress {
+            0% { transform: scale(0.98); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .key-press {
+            animation: keyPress 0.15s ease-in-out;
+        }
+
+        .typing-animation {
+            overflow: hidden;
+            border-right: 2px solid var(--primary-color);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: 
+                typing 3.5s steps(40, end),
+                blink 0.75s step-end infinite;
+        }
+
+        /* Fade in animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-container {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards 0.3s;
+        }
+
+        /* Lazy loading animation */
+        .lazy-load {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .lazy-load.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Character counter */
+        .char-counter {
+            position: absolute;
+            bottom: -20px;
+            right: 0;
+            font-size: 12px;
+            color: var(--placeholder-color);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .char-counter.visible {
+            opacity: 0.8;
+        }
+
         /* Prefetch indicator */
         .prefetch-indicator {
             position: absolute;
@@ -247,7 +338,8 @@
             transform: translateY(-50%);
             font-size: 12px;
             color: var(--primary-color);
-            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         /* Animation for prefetching indicator */
@@ -273,7 +365,7 @@
                 <p>Stop searching, start finding. InfoSeek delivers the web's best information, instantly. ✨</p>
             </div>
 
-            <div class="theme-toggle-container">
+            <div class="theme-toggle-container lazy-load">
                 <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -284,7 +376,13 @@
 
             <div class="input-container">
                 <span class="prefetch-indicator" id="prefetch-indicator"><span class="prefetching">⟳</span></span>
-                <input type="text" id="search-input" placeholder="Start typing to search...">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="Start typing to search..."
+                    autocomplete="off"
+                    data-lpignore="true"
+                    data-form-type="other">
                 <button id="search-btn" class="search-button" title="Search">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -293,16 +391,13 @@
                     </svg>
                 </button>
                 <div class="suggestions-container" id="suggestions-container"></div>
+                <div class="char-counter" id="char-counter">0/100</div>
             </div>
 
-            <div class="search-buttons">
-                <button id="google-search">Google Search</button>
-                <button id="feeling-lucky">I'm Feeling Lucky</button>
-            </div>
         </div>
     </div>
 
-    <div class="footer">
+    <div class="footer lazy-load">
         <a href="https://github.com/MxpleSticks">MapleSticks</a> •
         <a href="https://github.com/MxpleSticks/PowerKey">PowerKey</a> •
         <a href="https://github.com/MxpleSticks/InfoSeek">Source</a>
@@ -311,18 +406,51 @@
     <script>
         const searchInput = document.getElementById('search-input');
         const searchBtn = document.getElementById('search-btn');
-        const googleSearchBtn = document.getElementById('google-search');
-        const feelingLuckyBtn = document.getElementById('feeling-lucky');
         const themeToggle = document.getElementById('theme-toggle');
         const suggestionsContainer = document.getElementById('suggestions-container');
-        const prefetchIndicator = document.getElementById('prefetch-indicator');
+        const charCounter = document.getElementById('char-counter');
 
         // Prefetch management
         let lastInputValue = '';
         let typingTimer;
         let prefetchedResults = {};
         let isFetching = false;
+        let isTyping = false;
         const doneTypingInterval = 300; // wait time in ms after user stops typing
+        
+        // Lazy loading implementation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial loading animation is handled by CSS
+            
+            // Handle lazy loading elements
+            const lazyElements = document.querySelectorAll('.lazy-load');
+            
+            // Function to check if an element is in viewport
+            function isInViewport(element) {
+                const rect = element.getBoundingClientRect();
+                return (
+                    rect.top >= 0 &&
+                    rect.left >= 0 &&
+                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+                );
+            }
+            
+            // Function to handle lazy loading
+            function handleLazyLoad() {
+                lazyElements.forEach(element => {
+                    if (isInViewport(element)) {
+                        element.classList.add('visible');
+                    }
+                });
+            }
+            
+            // Initial check
+            setTimeout(handleLazyLoad, 100);
+            
+            // Add scroll event listener
+            window.addEventListener('scroll', handleLazyLoad);
+        });
         
         // Theme toggle functionality
         themeToggle.addEventListener('click', () => {
@@ -369,14 +497,16 @@
                 ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
                 : 'https://www.google.com/search?q=' + encodeURIComponent(query);
 
-            window.location.href = baseUrl;
+            // Add slight delay to show animation
+            setTimeout(() => {
+                window.location.href = baseUrl;
+            }, 300);
         }
 
-        // Auto-search suggestions
+        // Auto-search suggestions with animation
         function fetchSuggestions(query) {
             if (query.length < 2) {
-                suggestionsContainer.style.display = 'none';
-                prefetchIndicator.style.display = 'none';
+                suggestionsContainer.classList.remove('visible');
                 return;
             }
 
@@ -389,7 +519,6 @@
             // If not already fetching
             if (!isFetching) {
                 isFetching = true;
-                prefetchIndicator.style.display = 'block';
 
                 // Simulate fetching suggestions from an API
                 // In a real implementation, you would call a real API here
@@ -405,7 +534,6 @@
                     
                     // Reset fetching state
                     isFetching = false;
-                    prefetchIndicator.style.display = 'none';
                 }, 300); // Simulated network delay
             }
         }
@@ -439,16 +567,20 @@
             return [...new Set(suggestions)]; // Remove duplicates
         }
 
-        // Display suggestions in the dropdown
+        // Display suggestions in the dropdown with staggered animation
         function displaySuggestions(suggestions, query) {
             suggestionsContainer.innerHTML = '';
             
             if (suggestions.length === 0) {
-                suggestionsContainer.style.display = 'none';
+                suggestionsContainer.classList.remove('visible');
                 return;
             }
             
-            suggestions.forEach(suggestion => {
+            // First show container with smooth animation
+            suggestionsContainer.classList.add('visible');
+            
+            // Then add items with staggered animation
+            suggestions.forEach((suggestion, index) => {
                 const element = document.createElement('div');
                 element.className = 'suggestion-item';
                 
@@ -458,15 +590,18 @@
                 
                 element.addEventListener('click', () => {
                     searchInput.value = suggestion;
-                    suggestionsContainer.style.display = 'none';
+                    suggestionsContainer.classList.remove('visible');
                     // Immediately search when suggestion is clicked
                     performSearch(false);
                 });
                 
                 suggestionsContainer.appendChild(element);
+                
+                // Animate items with staggered delay
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, 50 * index);
             });
-            
-            suggestionsContainer.style.display = 'block';
         }
 
         // Highlight the matching part of the suggestion
@@ -484,70 +619,76 @@
             return beforeMatch + '<strong>' + match + '</strong>' + afterMatch;
         }
 
-        // Auto-prefetch
+        // Auto-prefetch with lazy loading
         function prefetchGoogle(query) {
             if (query.length < 3) return;
             
-            const prefetchLink = document.createElement('link');
-            prefetchLink.rel = 'prefetch';
-            prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
-            document.head.appendChild(prefetchLink);
+            // Only prefetch if the user has been idle for a moment
+            clearTimeout(typingTimer);
             
-            // Remove after a while to avoid cluttering the DOM
-            setTimeout(() => {
-                document.head.removeChild(prefetchLink);
-            }, 10000);
+            typingTimer = setTimeout(() => {
+                const prefetchLink = document.createElement('link');
+                prefetchLink.rel = 'prefetch';
+                prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+                document.head.appendChild(prefetchLink);
+                
+                // Remove after a while to avoid cluttering the DOM
+                setTimeout(() => {
+                    document.head.removeChild(prefetchLink);
+                }, 10000);
+            }, 500);
         }
 
-        // Random suggestions for "I'm Feeling Lucky"
-        const randomSearches = [
-            "interesting facts about space",
-            "cute animal pictures",
-            "recipe of the day",
-            "world's most beautiful places",
-            "today in history",
-            "amazing science discoveries",
-            "relaxing music playlist",
-            "inspiring quotes",
-            "fun facts about the ocean",
-            "how to learn a new language",
-            "interesting documentaries",
-            "healthy breakfast ideas",
-            "DIY home projects",
-            "mind-blowing astronomy facts",
-            "beautiful national parks",
-            "fun brain teasers",
-            "interesting podcasts",
-            "best books of all time",
-            "virtual museum tours",
-            "incredible natural phenomena"
-        ];
+        // Character counter function
+        function updateCharCounter() {
+            const count = searchInput.value.length;
+            charCounter.textContent = count + '/100';
+            
+            if (count > 0) {
+                charCounter.classList.add('visible');
+            } else {
+                charCounter.classList.remove('visible');
+            }
+        }
 
         // Event listeners for search
         searchBtn.addEventListener('click', () => performSearch(false));
-        googleSearchBtn.addEventListener('click', () => performSearch(false));
-        feelingLuckyBtn.addEventListener('click', () => {
-            // Get a random search from the array
-            const randomIndex = Math.floor(Math.random() * randomSearches.length);
-            const randomSearch = randomSearches[randomIndex];
-
-            // Set the input value to the random search (optional - shows the user what's being searched)
-            searchInput.value = randomSearch;
-
-            // Perform the search
-            window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(randomSearch);
-        });
 
         searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 performSearch(false);
-                suggestionsContainer.style.display = 'none';
+                suggestionsContainer.classList.remove('visible');
             }
         });
 
-        // Auto-search as you type
+        // Add key press animation
+        searchInput.addEventListener('keydown', function(e) {
+            // Don't animate modifier keys or function keys
+            if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+                this.classList.add('key-press');
+                
+                // Remove the class after animation completes
+                setTimeout(() => {
+                    this.classList.remove('key-press');
+                }, 150);
+            }
+        });
+
+        // Auto-search as you type with smooth animation
         searchInput.addEventListener('input', function () {
             const query = this.value.trim();
+            
+            // Update character counter
+            updateCharCounter();
+            
+            // Add typing animation
+            if (!isTyping && query.length > 0) {
+                isTyping = true;
+                searchInput.classList.add('input-active');
+            } else if (query.length === 0) {
+                isTyping = false;
+                searchInput.classList.remove('input-active');
+            }
             
             // Clear timeout
             clearTimeout(typingTimer);
@@ -571,17 +712,53 @@
             lastInputValue = query;
         });
 
+        // Focus and blur animations for search input
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length > 0) {
+                fetchSuggestions(this.value);
+            }
+        });
+
         // Close suggestions when clicking outside
         document.addEventListener('click', function(event) {
             if (!searchInput.contains(event.target) && 
                 !suggestionsContainer.contains(event.target)) {
-                suggestionsContainer.style.display = 'none';
+                suggestionsContainer.classList.remove('visible');
             }
         });
 
-        // Focus the search input on page load
+        // Lazy load the lazy-load elements
+        function lazyLoadElements() {
+            const elements = document.querySelectorAll('.lazy-load');
+            elements.forEach((element, index) => {
+                setTimeout(() => {
+                    element.classList.add('visible');
+                }, 100 * index);
+            });
+        }
+
+        // Focus the search input on page load and initialize lazy loading
         window.addEventListener('load', () => {
-            searchInput.focus();
+            setTimeout(() => {
+                lazyLoadElements();
+                searchInput.focus();
+            }, 800); // Delay to allow initial animations to complete
+        });
+
+        // Intersection Observer for lazy loading elements on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        document.querySelectorAll('.lazy-load').forEach(element => {
+            observer.observe(element);
         });
     </script>
 </body>

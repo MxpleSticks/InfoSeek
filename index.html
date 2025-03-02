@@ -493,11 +493,24 @@
             const query = searchInput.value.trim();
             if (!query) return;
 
+            // URL pattern to check if input is a web address
+            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
+            
+            // Handle URL input
+            if (urlPattern.test(query)) {
+                // Add https:// if no protocol specified
+                const url = query.startsWith('http') ? query : 'https://' + query;
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 300);
+                return;
+            }
+
+            // Handle regular search
             const baseUrl = isLucky
                 ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
                 : 'https://www.google.com/search?q=' + encodeURIComponent(query);
 
-            // Add slight delay to show animation
             setTimeout(() => {
                 window.location.href = baseUrl;
             }, 300);

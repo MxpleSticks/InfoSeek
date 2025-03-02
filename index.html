@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InfoSeek</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --animation-speed: 0.5s;
@@ -247,18 +248,33 @@
         }
 
         @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
         }
 
         @keyframes blink {
-            50% { border-color: transparent }
+            50% {
+                border-color: transparent
+            }
         }
 
         @keyframes keyPress {
-            0% { transform: scale(0.98); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0.98);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         .key-press {
@@ -281,6 +297,7 @@
                 opacity: 0;
                 transform: translateY(-20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -292,6 +309,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -341,9 +359,17 @@
         }
 
         @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
+            0% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.5;
+            }
         }
 
         .prefetching {
@@ -433,13 +459,8 @@
 
             <div class="input-container">
                 <span class="prefetch-indicator" id="prefetch-indicator"><span class="prefetching">⟳</span></span>
-                <input
-                    type="text"
-                    id="search-input"
-                    placeholder="Start typing to search..."
-                    autocomplete="off"
-                    data-lpignore="true"
-                    data-form-type="other">
+                <input type="text" id="search-input" placeholder="Start typing to search..." autocomplete="off"
+                    data-lpignore="true" data-form-type="other">
                 <button id="search-btn" class="search-button" title="Search">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -448,12 +469,14 @@
                     </svg>
                 </button>
                 <button id="ai-search-btn" class="ai-search-button" title="Search with AI">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2M12 8v8M8 12h8"/>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2M12 8v8M8 12h8" />
                     </svg>
                 </button>
                 <button id="bookmark-btn" class="bookmark-button" title="Bookmark this search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
                     </svg>
                 </button>
@@ -473,388 +496,447 @@
 
     <script>
         const searchInput = document.getElementById('search-input');
-        const searchBtn = document.getElementById('search-btn');
-        const themeToggle = document.getElementById('theme-toggle');
-        const suggestionsContainer = document.getElementById('suggestions-container');
-        const charCounter = document.getElementById('char-counter');
-        const aiSearchBtn = document.getElementById('ai-search-btn');
-        const bookmarkBtn = document.getElementById('bookmark-btn');
-        const bookmarksContainer = document.getElementById('bookmarks-container');
+const searchBtn = document.getElementById('search-btn');
+const themeToggle = document.getElementById('theme-toggle');
+const suggestionsContainer = document.getElementById('suggestions-container');
+const charCounter = document.getElementById('char-counter');
+const aiSearchBtn = document.getElementById('ai-search-btn');
+const bookmarkBtn = document.getElementById('bookmark-btn');
+const bookmarksContainer = document.getElementById('bookmarks-container');
 
-        let lastInputValue = '';
-        let typingTimer;
-        let prefetchedResults = {};
-        let isFetching = false;
-        let isTyping = false;
-        const doneTypingInterval = 300;
+let lastInputValue = '';
+let typingTimer;
+let prefetchedResults = {};
+let isFetching = false;
+let isTyping = false;
+const doneTypingInterval = 300;
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const lazyElements = document.querySelectorAll('.lazy-load');
+document.addEventListener('DOMContentLoaded', function() {
+    const lazyElements = document.querySelectorAll('.lazy-load');
 
-            function isInViewport(element) {
-                const rect = element.getBoundingClientRect();
-                return (
-                    rect.top >= 0 &&
-                    rect.left >= 0 &&
-                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-                    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
-                );
+    function isInViewport(element) {
+        const rect = element.getBoundingClientRect();
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+    function handleLazyLoad() {
+        lazyElements.forEach(element => {
+            if (isInViewport(element)) {
+                element.classList.add('visible');
             }
-
-            function handleLazyLoad() {
-                lazyElements.forEach(element => {
-                    if (isInViewport(element)) {
-                        element.classList.add('visible');
-                    }
-                });
-            }
-
-            setTimeout(handleLazyLoad, 100);
-
-            window.addEventListener('scroll', handleLazyLoad);
         });
+    }
 
-        themeToggle.addEventListener('click', () => {
-            const html = document.documentElement;
-            if (html.getAttribute('data-theme') === 'light') {
-                html.setAttribute('data-theme', 'dark');
-                updateThemeIcon('dark');
-                localStorage.setItem('theme', 'dark');
+    setTimeout(handleLazyLoad, 100);
+
+    window.addEventListener('scroll', handleLazyLoad);
+});
+
+themeToggle.addEventListener('click', () => {
+    const html = document.documentElement;
+    if (html.getAttribute('data-theme') === 'light') {
+        html.setAttribute('data-theme', 'dark');
+        updateThemeIcon('dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        html.setAttribute('data-theme', 'light');
+        updateThemeIcon('light');
+        localStorage.setItem('theme', 'light');
+    }
+});
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+} else {
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    if (prefersDark) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        updateThemeIcon('dark');
+    }
+}
+
+function updateThemeIcon(theme) {
+    themeToggle.innerHTML = theme === 'dark'
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
+}
+
+function performSearch(query, isLucky = false) {
+    if (!query) return;
+
+    // Update search history
+    updateSearchHistory(query);
+
+    const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
+
+    if (urlPattern.test(query)) {
+        const url = query.startsWith('http') ? query : 'https://' + query;
+        setTimeout(() => {
+            window.location.href = url;
+        }, 300);
+        return;
+    }
+
+    const baseUrl = isLucky
+        ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
+        : 'https://www.google.com/search?q=' + encodeURIComponent(query);
+
+    setTimeout(() => {
+        window.location.href = baseUrl;
+    }, 300);
+}
+
+// Function to update search history
+function updateSearchHistory(query) {
+    // Get existing search history
+    let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || {};
+    
+    // Update count for this query
+    searchHistory[query] = (searchHistory[query] || 0) + 1;
+    
+    // Store updated history
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+}
+
+// Function to get top searches
+function getTopSearches(limit = 5) {
+    const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || {};
+    
+    // Convert to array of [query, count] pairs
+    const searchEntries = Object.entries(searchHistory);
+    
+    // Sort by count (descending)
+    searchEntries.sort((a, b) => b[1] - a[1]);
+    
+    // Return just the queries, limited to specified count
+    return searchEntries.slice(0, limit).map(entry => entry[0]);
+}
+
+// Function to get all searches
+function getAllSearches() {
+    const searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || {};
+    return Object.keys(searchHistory);
+}
+
+function fetchSuggestions(query) {
+    if (query.length < 1 && query !== '') {
+        suggestionsContainer.classList.remove('visible');
+        return;
+    }
+
+    if (prefetchedResults[query]) {
+        displaySuggestions(prefetchedResults[query], query);
+        return;
+    }
+
+    if (!isFetching) {
+        isFetching = true;
+
+        setTimeout(() => {
+            let suggestions = [];
+            
+            if (query === '') {
+                // When input is empty, show top 5 searches
+                suggestions = getTopSearches(5);
             } else {
-                html.setAttribute('data-theme', 'light');
-                updateThemeIcon('light');
-                localStorage.setItem('theme', 'light');
-            }
-        });
-
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
-        } else {
-            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (prefersDark) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                updateThemeIcon('dark');
-            }
-        }
-
-        function updateThemeIcon(theme) {
-            themeToggle.innerHTML = theme === 'dark'
-                ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>'
-                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
-        }
-
-        function performSearch(query, isLucky = false) {
-            if (!query) return;
-
-            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
-
-            if (urlPattern.test(query)) {
-                const url = query.startsWith('http') ? query : 'https://' + query;
-                setTimeout(() => {
-                    window.location.href = url;
-                }, 300);
-                return;
-            }
-
-            const baseUrl = isLucky
-                ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
-                : 'https://www.google.com/search?q=' + encodeURIComponent(query);
-
-            setTimeout(() => {
-                window.location.href = baseUrl;
-            }, 300);
-        }
-
-        function fetchSuggestions(query) {
-            if (query.length < 2) {
-                suggestionsContainer.classList.remove('visible');
-                return;
-            }
-
-            if (prefetchedResults[query]) {
-                displaySuggestions(prefetchedResults[query], query);
-                return;
-            }
-
-            if (!isFetching) {
-                isFetching = true;
-
-                setTimeout(() => {
-                    const suggestions = generateSuggestions(query);
-
-                    prefetchedResults[query] = suggestions;
-
-                    displaySuggestions(suggestions, query);
-
-                    isFetching = false;
-                }, 300);
-            }
-        }
-
-        function generateSuggestions(query) {
-            const commonCompletions = [
-                " meaning", " definition", " examples", " vs", " tutorial",
-                " how to", " near me", " best", " review", " price",
-                " 2025", " benefits", " results", " chart", " login"
-            ];
-
-            const suggestions = [];
-
-            suggestions.push(query);
-
-            for (let i = 0; i < 3; i++) {
-                const randomCompletion = commonCompletions[Math.floor(Math.random() * commonCompletions.length)];
-                suggestions.push(query + randomCompletion);
-            }
-
-            if (query.split(' ').length > 1) {
-                suggestions.push("how to " + query);
-            }
-
-            return [...new Set(suggestions)].slice(0, 5);
-        }
-
-        function displaySuggestions(suggestions, query) {
-            suggestionsContainer.innerHTML = '';
-
-            if (suggestions.length === 0) {
-                suggestionsContainer.classList.remove('visible');
-                return;
-            }
-
-            suggestionsContainer.classList.add('visible');
-
-            suggestions.forEach((suggestion, index) => {
-                const element = document.createElement('div');
-                element.className = 'suggestion-item';
-
-                const highlightedText = highlightMatch(suggestion, query);
-                element.innerHTML = highlightedText;
-
-                element.addEventListener('click', () => {
-                    searchInput.value = suggestion;
-                    suggestionsContainer.classList.remove('visible');
-                    performSearch(suggestion, false);
-                });
-
-                suggestionsContainer.appendChild(element);
-
-                setTimeout(() => {
-                    element.classList.add('visible');
-                }, 50 * index);
-            });
-        }
-
-        function highlightMatch(text, query) {
-            const lowerText = text.toLowerCase();
-            const lowerQuery = query.toLowerCase();
-            const index = lowerText.indexOf(lowerQuery);
-
-            if (index === -1) return text;
-
-            const beforeMatch = text.substring(0, index);
-            const match = text.substring(index, index + query.length);
-            const afterMatch = text.substring(index + query.length);
-
-            return beforeMatch + '<strong>' + match + '</strong>' + afterMatch;
-        }
-
-        function prefetchGoogle(query) {
-            if (query.length < 3) return;
-
-            clearTimeout(typingTimer);
-
-            typingTimer = setTimeout(() => {
-                const prefetchLink = document.createElement('link');
-                prefetchLink.rel = 'prefetch';
-                prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
-                document.head.appendChild(prefetchLink);
-
-                setTimeout(() => {
-                    document.head.removeChild(prefetchLink);
-                }, 10000);
-            }, 500);
-        }
-
-        function updateCharCounter() {
-            const count = searchInput.value.length;
-            charCounter.textContent = count + '/100';
-
-            if (count > 0) {
-                charCounter.classList.add('visible');
-            } else {
-                charCounter.classList.remove('visible');
-            }
-        }
-
-        searchBtn.addEventListener('click', () => performSearch(searchInput.value, false));
-
-        searchInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                performSearch(searchInput.value, false);
-                suggestionsContainer.classList.remove('visible');
-            }
-        });
-
-        searchInput.addEventListener('keydown', function(e) {
-            if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
-                this.classList.add('key-press');
-
-                setTimeout(() => {
-                    this.classList.remove('key-press');
-                }, 150);
-            }
-        });
-
-        searchInput.addEventListener('input', function () {
-            const query = this.value.trim();
-
-            updateCharCounter();
-
-            if (!isTyping && query.length > 0) {
-                isTyping = true;
-                searchInput.classList.add('input-active');
-            } else if (query.length === 0) {
-                isTyping = false;
-                searchInput.classList.remove('input-active');
-            }
-
-            clearTimeout(typingTimer);
-
-            if (Math.abs(query.length - lastInputValue.length) > 1 ||
-                !query.startsWith(lastInputValue)) {
-                fetchSuggestions(query);
-            }
-
-            typingTimer = setTimeout(() => {
-                fetchSuggestions(query);
-
-                if (query.length > 2) {
-                    prefetchGoogle(query);
+                // Get all searches that match the query
+                const allSearches = getAllSearches();
+                const matchingSearches = allSearches.filter(search => 
+                    search.toLowerCase().includes(query.toLowerCase()));
+                
+                // Sort matching searches: first the top 5, then the rest
+                const topSearches = getTopSearches();
+                
+                // First add top searches that match the query
+                const matchingTopSearches = topSearches.filter(search => 
+                    search.toLowerCase().includes(query.toLowerCase()));
+                suggestions = [...matchingTopSearches];
+                
+                // Then add other matching searches
+                const otherMatchingSearches = matchingSearches.filter(search => 
+                    !topSearches.includes(search));
+                suggestions = [...suggestions, ...otherMatchingSearches];
+                
+                // If the query itself isn't in our history, add it
+                if (!suggestions.includes(query)) {
+                    suggestions.unshift(query);
                 }
-            }, doneTypingInterval);
-
-            lastInputValue = query;
-        });
-
-        searchInput.addEventListener('focus', function() {
-            if (this.value.length > 0) {
-                fetchSuggestions(this.value);
             }
+            
+            // Limit to max 5 suggestions
+            suggestions = suggestions.slice(0, 5);
+
+            prefetchedResults[query] = suggestions;
+            displaySuggestions(suggestions, query);
+            isFetching = false;
+        }, 300);
+    }
+}
+
+function displaySuggestions(suggestions, query) {
+    suggestionsContainer.innerHTML = '';
+
+    if (suggestions.length === 0) {
+        suggestionsContainer.classList.remove('visible');
+        return;
+    }
+
+    suggestionsContainer.classList.add('visible');
+
+    // Get top 5 searches for marking
+    const topSearches = getTopSearches(5);
+
+    suggestions.forEach((suggestion, index) => {
+        const element = document.createElement('div');
+        element.className = 'suggestion-item';
+
+        // Highlight the match
+        const highlightedText = highlightMatch(suggestion, query);
+        
+        // If this is one of the top 5 searches, add an indicator
+        const isTopSearch = topSearches.includes(suggestion);
+        const topSearchIndicator = isTopSearch ? ' <span style="color: var(--primary-color); font-size: 0.8em;">★</span>' : '';
+        
+        element.innerHTML = highlightedText + topSearchIndicator;
+
+        element.addEventListener('click', () => {
+            searchInput.value = suggestion;
+            suggestionsContainer.classList.remove('visible');
+            performSearch(suggestion, false);
         });
 
-        document.addEventListener('click', function(event) {
-            if (!searchInput.contains(event.target) &&
-                !suggestionsContainer.contains(event.target)) {
-                suggestionsContainer.classList.remove('visible');
-            }
-        });
+        suggestionsContainer.appendChild(element);
 
-        function lazyLoadElements() {
-            const elements = document.querySelectorAll('.lazy-load');
-            elements.forEach((element, index) => {
-                setTimeout(() => {
-                    element.classList.add('visible');
-                }, 100 * index);
-            });
+        setTimeout(() => {
+            element.classList.add('visible');
+        }, 50 * index);
+    });
+}
+
+function highlightMatch(text, query) {
+    if (query === '') return text;
+    
+    const lowerText = text.toLowerCase();
+    const lowerQuery = query.toLowerCase();
+    const index = lowerText.indexOf(lowerQuery);
+
+    if (index === -1) return text;
+
+    const beforeMatch = text.substring(0, index);
+    const match = text.substring(index, index + query.length);
+    const afterMatch = text.substring(index + query.length);
+
+    return beforeMatch + '<strong>' + match + '</strong>' + afterMatch;
+}
+
+function prefetchGoogle(query) {
+    if (query.length < 3) return;
+
+    clearTimeout(typingTimer);
+
+    typingTimer = setTimeout(() => {
+        const prefetchLink = document.createElement('link');
+        prefetchLink.rel = 'prefetch';
+        prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+        document.head.appendChild(prefetchLink);
+
+        setTimeout(() => {
+            document.head.removeChild(prefetchLink);
+        }, 10000);
+    }, 500);
+}
+
+function updateCharCounter() {
+    const count = searchInput.value.length;
+    charCounter.textContent = count + '/100';
+
+    if (count > 0) {
+        charCounter.classList.add('visible');
+    } else {
+        charCounter.classList.remove('visible');
+    }
+}
+
+searchBtn.addEventListener('click', () => performSearch(searchInput.value, false));
+
+searchInput.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        performSearch(searchInput.value, false);
+        suggestionsContainer.classList.remove('visible');
+    }
+});
+
+searchInput.addEventListener('keydown', function(e) {
+    if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
+        this.classList.add('key-press');
+
+        setTimeout(() => {
+            this.classList.remove('key-press');
+        }, 150);
+    }
+});
+
+searchInput.addEventListener('input', function () {
+    const query = this.value.trim();
+
+    updateCharCounter();
+
+    if (!isTyping && query.length > 0) {
+        isTyping = true;
+        searchInput.classList.add('input-active');
+    } else if (query.length === 0) {
+        isTyping = false;
+        searchInput.classList.remove('input-active');
+        
+        // Show top searches when input is cleared
+        fetchSuggestions('');
+    }
+
+    clearTimeout(typingTimer);
+
+    if (Math.abs(query.length - lastInputValue.length) > 1 ||
+        !query.startsWith(lastInputValue)) {
+        prefetchedResults = {}; // Clear cache when there's a major change
+        fetchSuggestions(query);
+    }
+
+    typingTimer = setTimeout(() => {
+        fetchSuggestions(query);
+
+        if (query.length > 2) {
+            prefetchGoogle(query);
         }
+    }, doneTypingInterval);
 
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                lazyLoadElements();
-                searchInput.focus();
-            }, 800);
-        });
+    lastInputValue = query;
+});
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, {
-            threshold: 0.1
-        });
+searchInput.addEventListener('focus', function() {
+    if (this.value.length > 0) {
+        fetchSuggestions(this.value);
+    } else {
+        // Show top searches when input is focused but empty
+        fetchSuggestions('');
+    }
+});
 
-        document.querySelectorAll('.lazy-load').forEach(element => {
-            observer.observe(element);
-        });
+document.addEventListener('click', function(event) {
+    if (!searchInput.contains(event.target) &&
+        !suggestionsContainer.contains(event.target)) {
+        suggestionsContainer.classList.remove('visible');
+    }
+});
 
-        aiSearchBtn.addEventListener('click', () => {
-            const query = searchInput.value.trim();
-            window.location.href = 'https://www.perplexity.ai/';
-        });
+function lazyLoadElements() {
+    const elements = document.querySelectorAll('.lazy-load');
+    elements.forEach((element, index) => {
+        setTimeout(() => {
+            element.classList.add('visible');
+        }, 100 * index);
+    });
+}
 
-        bookmarkBtn.addEventListener('click', () => {
-            const query = searchInput.value.trim();
-            if (query) {
-                addBookmark(query);
-                displayBookmarks();
-            }
-            bookmarksContainer.classList.toggle('visible');
-        });
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        lazyLoadElements();
+        searchInput.focus();
+    }, 800);
+});
 
-        function addBookmark(url) {
-            const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
-            const bookmarkExists = bookmarks.some(bookmark => bookmark.url === url);
-
-            if (!bookmarkExists) {
-                const bookmark = { url, timestamp: new Date().toISOString() };
-                bookmarks.push(bookmark);
-                localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-            }
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
         }
+    });
+}, {
+    threshold: 0.1
+});
 
-        function displayBookmarks() {
-            const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
-            bookmarksContainer.innerHTML = '';
+document.querySelectorAll('.lazy-load').forEach(element => {
+    observer.observe(element);
+});
 
-            bookmarks.forEach((bookmark, index) => {
-                const bookmarkElement = document.createElement('div');
-                bookmarkElement.className = 'bookmark-item';
-                bookmarkElement.innerHTML = `
-                    <a href="#" class="bookmark-link" data-url="${bookmark.url}">${bookmark.url}</a>
-                    <button class="remove-bookmark-btn" data-index="${index}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                `;
-                bookmarksContainer.appendChild(bookmarkElement);
+aiSearchBtn.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    window.location.href = 'https://www.perplexity.ai/';
+});
 
-                setTimeout(() => {
-                    bookmarkElement.classList.add('visible');
-                }, 50 * index);
-            });
-
-            document.querySelectorAll('.remove-bookmark-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const index = this.getAttribute('data-index');
-                    removeBookmark(index);
-                    displayBookmarks();
-                });
-            });
-
-            document.querySelectorAll('.bookmark-link').forEach(link => {
-                link.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    const url = this.getAttribute('data-url');
-                    performSearch(url, false);
-                });
-            });
-        }
-
-        function removeBookmark(index) {
-            let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
-            bookmarks.splice(index, 1);
-            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-        }
-
+bookmarkBtn.addEventListener('click', () => {
+    const query = searchInput.value.trim();
+    if (query) {
+        addBookmark(query);
         displayBookmarks();
+    }
+    bookmarksContainer.classList.toggle('visible');
+});
+
+function addBookmark(url) {
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+    const bookmarkExists = bookmarks.some(bookmark => bookmark.url === url);
+
+    if (!bookmarkExists) {
+        const bookmark = { url, timestamp: new Date().toISOString() };
+        bookmarks.push(bookmark);
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    }
+}
+
+function displayBookmarks() {
+    const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+    bookmarksContainer.innerHTML = '';
+
+    bookmarks.forEach((bookmark, index) => {
+        const bookmarkElement = document.createElement('div');
+        bookmarkElement.className = 'bookmark-item';
+        bookmarkElement.innerHTML = `
+            <a href="#" class="bookmark-link" data-url="${bookmark.url}">${bookmark.url}</a>
+            <button class="remove-bookmark-btn" data-index="${index}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        `;
+        bookmarksContainer.appendChild(bookmarkElement);
+
+        setTimeout(() => {
+            bookmarkElement.classList.add('visible');
+        }, 50 * index);
+    });
+
+    document.querySelectorAll('.remove-bookmark-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            removeBookmark(index);
+            displayBookmarks();
+        });
+    });
+
+    document.querySelectorAll('.bookmark-link').forEach(link => {
+        link.addEventListener('click', function(event) {
+            event.preventDefault();
+            const url = this.getAttribute('data-url');
+            performSearch(url, false);
+        });
+    });
+}
+
+function removeBookmark(index) {
+    let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+    bookmarks.splice(index, 1);
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+}
+
+displayBookmarks();
     </script>
 </body>
 

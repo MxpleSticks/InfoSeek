@@ -353,6 +353,25 @@
             display: inline-block;
             animation: pulse 1.5s infinite ease-in-out;
         }
+
+        .ai-search-button {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            color: var(--text-color);
+            transition: transform 0.2s ease, color 0.2s ease;
+            z-index: 1;
+        }
+
+        .ai-search-button:hover {
+            transform: translateY(-50%) scale(1.2);
+            color: var(--primary-color);
+        }
     </style>
 </head>
 
@@ -390,6 +409,11 @@
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
+                <button id="ai-search-btn" class="ai-search-button" title="Search with AI">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2M12 8v8M8 12h8"/>
+                    </svg>
+                </button>
                 <div class="suggestions-container" id="suggestions-container"></div>
                 <div class="char-counter" id="char-counter">0/100</div>
             </div>
@@ -409,6 +433,7 @@
         const themeToggle = document.getElementById('theme-toggle');
         const suggestionsContainer = document.getElementById('suggestions-container');
         const charCounter = document.getElementById('char-counter');
+        const aiSearchBtn = document.getElementById('ai-search-btn');
 
         // Prefetch management
         let lastInputValue = '';
@@ -772,6 +797,12 @@
 
         document.querySelectorAll('.lazy-load').forEach(element => {
             observer.observe(element);
+        });
+
+        aiSearchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            // Replace current window with Perplexity AI
+            window.location.href = 'https://www.perplexity.ai/';
         });
     </script>
 </body>

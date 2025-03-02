@@ -593,9 +593,8 @@
 
             if (urlPattern.test(query)) {
                 const url = query.startsWith('http') ? query : 'https://' + query;
-                setTimeout(() => {
-                    window.location.href = url;
-                }, 300);
+                // Immediate navigation without delay
+                window.location.href = url;
                 return;
             }
 
@@ -603,9 +602,8 @@
                 ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
                 : 'https://www.google.com/search?q=' + encodeURIComponent(query);
 
-            setTimeout(() => {
-                window.location.href = baseUrl;
-            }, 300);
+            // Immediate navigation without delay
+            window.location.href = baseUrl;
         }
 
         // Function to update search history
@@ -927,14 +925,14 @@
                 const bookmarkElement = document.createElement('div');
                 bookmarkElement.className = 'bookmark-item';
                 bookmarkElement.innerHTML = `
-            <a href="#" class="bookmark-link" data-url="${bookmark.url}">${bookmark.url}</a>
-            <button class="remove-bookmark-btn" data-index="${index}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        `;
+        <a href="#" class="bookmark-link" data-url="${bookmark.url}">${bookmark.url}</a>
+        <button class="remove-bookmark-btn" data-index="${index}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    `;
                 bookmarksContainer.appendChild(bookmarkElement);
 
                 setTimeout(() => {
@@ -966,6 +964,89 @@
         }
 
         displayBookmarks();
+
+        let selectedIndex = -1;
+        let currentContainer = null;
+
+        searchInput.addEventListener('keydown', function(e) {
+            // Get the active container (suggestions or bookmarks)
+            const activeContainer = suggestionsContainer.classList.contains('visible') ? 
+                suggestionsContainer : bookmarksContainer.classList.contains('visible') ? 
+                bookmarksContainer : null;
+
+            if (!activeContainer) return;
+
+            const items = activeContainer.children;
+            
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                    updateSelection(items);
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = Math.max(selectedIndex - 1, -1);
+                    updateSelection(items);
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && selectedIndex < items.length) {
+                        if (activeContainer === suggestionsContainer) {
+                            // For suggestions
+                            const suggestion = items[selectedIndex].textContent.replace('★', '').trim();
+                            searchInput.value = suggestion;
+                            performSearch(suggestion, false);
+                        } else {
+                            // For bookmarks
+                            const url = items[selectedIndex].querySelector('.bookmark-link').getAttribute('data-url');
+                            performSearch(url, false);
+                        }
+                        activeContainer.classList.remove('visible');
+                        selectedIndex = -1;
+                    }
+                    break;
+                    
+                case 'Escape':
+                    activeContainer.classList.remove('visible');
+                    selectedIndex = -1;
+                    break;
+            }
+        });
+
+        function updateSelection(items) {
+            // Remove highlight from all items
+            Array.from(items).forEach(item => {
+                item.style.backgroundColor = '';
+            });
+            
+            // Highlight selected item
+            if (selectedIndex >= 0) {
+                items[selectedIndex].style.backgroundColor = 'var(--suggestions-hover)';
+                items[selectedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        // Reset selection when showing new suggestions or bookmarks
+        function resetSelection() {
+            selectedIndex = -1;
+        }
+
+        // Add to existing displaySuggestions function after suggestionsContainer.innerHTML = '';
+        const originalDisplaySuggestions = displaySuggestions;
+        displaySuggestions = function(suggestions, query) {
+            resetSelection();
+            originalDisplaySuggestions(suggestions, query);
+        };
+
+        // Add to existing displayBookmarks function after bookmarksContainer.innerHTML = '';
+        const originalDisplayBookmarks = displayBookmarks;
+        displayBookmarks = function() {
+            resetSelection();
+            originalDisplayBookmarks();
+        };
     </script>
 </body>
 

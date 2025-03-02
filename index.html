@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InfoSeek</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --animation-speed: 0.5s;
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --placeholder-color: #888888;
+            --input-bg: #f5f5f5;
+            --input-border: #dddddd;
+            --footer-color: #777777;
+            --footer-border: #eeeeee;
+            --btn-hover: #0066ff;
+            --primary-color: #0066ff;
+            --suggestions-bg: #ffffff;
+            --suggestions-hover: #f0f0f0;
+            --suggestions-border: #dddddd;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --placeholder-color: #aaaaaa;
+            --input-bg: #2a2a2a;
+            --input-border: #444444;
+            --footer-color: #888888;
+            --footer-border: #333333;
+            --btn-hover: #4d94ff;
+            --primary-color: #4d94ff;
+            --suggestions-bg: #2a2a2a;
+            --suggestions-hover: #3a3a3a;
+            --suggestions-border: #444444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle-container {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 15px;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 36px;
+            margin-bottom: 8px;
+            font-family: 'Montserrat', 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: -25px;
+            color: var(--placeholder-color);
+            font-weight: 500;
+            max-width: 600px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 30px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            font-size: 16px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
+        }
+
+        .search-button {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            color: var(--text-color);
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .search-button:hover {
+            transform: translateY(-50%) scale(1.2);
+            color: var(--primary-color);
+        }
+
+        .search-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .search-buttons button {
+            background: none;
+            border: 1px solid var(--input-border);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .search-buttons button:hover {
+            background-color: var(--input-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .footer {
+            width: 100%;
+            text-align: center;
+            padding: 15px 0;
+            font-size: 12px;
+            color: var(--footer-color);
+            border-top: 1px solid var(--footer-border);
+            margin-top: auto;
+            transition: border-color 0.3s ease;
+        }
+
+        .footer a {
+            color: var(--footer-color);
+            text-decoration: none;
+            margin: 0 5px;
+            transition: color 0.2s ease;
+        }
+
+        .footer a:hover {
+            color: var(--primary-color);
+        }
+
+        .logo-container {
+            margin-bottom: 20px;
+        }
+
+        /* Auto-search suggestions styles */
+        .suggestions-container {
+            position: absolute;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: var(--suggestions-bg);
+            border: 1px solid var(--suggestions-border);
+            border-radius: 6px;
+            margin-top: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            display: none;
+            text-align: left;
+        }
+
+        .suggestion-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background-color: var(--suggestions-hover);
+        }
+
+        .suggestion-item strong {
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        /* Prefetch indicator */
+        .prefetch-indicator {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: var(--primary-color);
+            display: none;
+        }
+
+        /* Animation for prefetching indicator */
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .prefetching {
+            display: inline-block;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <div class="container">
+
+            <div class="logo-container">
+                <h1>InfoSeek</h1>
+                <p>Stop searching, start finding. InfoSeek delivers the web's best information, instantly. ✨</p>
+            </div>
+
+            <div class="theme-toggle-container">
+                <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="input-container">
+                <span class="prefetch-indicator" id="prefetch-indicator"><span class="prefetching">⟳</span></span>
+                <input type="text" id="search-input" placeholder="Start typing to search...">
+                <button id="search-btn" class="search-button" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+                <div class="suggestions-container" id="suggestions-container"></div>
+            </div>
+
+            <div class="search-buttons">
+                <button id="google-search">Google Search</button>
+                <button id="feeling-lucky">I'm Feeling Lucky</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <a href="https://github.com/MxpleSticks">MapleSticks</a> •
+        <a href="https://github.com/MxpleSticks/PowerKey">PowerKey</a> •
+        <a href="https://github.com/MxpleSticks/InfoSeek">Source</a>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const googleSearchBtn = document.getElementById('google-search');
+        const feelingLuckyBtn = document.getElementById('feeling-lucky');
+        const themeToggle = document.getElementById('theme-toggle');
+        const suggestionsContainer = document.getElementById('suggestions-container');
+        const prefetchIndicator = document.getElementById('prefetch-indicator');
+
+        // Prefetch management
+        let lastInputValue = '';
+        let typingTimer;
+        let prefetchedResults = {};
+        let isFetching = false;
+        const doneTypingInterval = 300; // wait time in ms after user stops typing
+        
+        // Theme toggle functionality
+        themeToggle.addEventListener('click', () => {
+            const html = document.documentElement;
+            if (html.getAttribute('data-theme') === 'light') {
+                html.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                updateThemeIcon('light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Load saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        } else {
+            // Check for system preference if no saved theme
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                updateThemeIcon('dark');
+            }
+        }
+
+        function updateThemeIcon(theme) {
+            // Sun icon for dark mode (to switch to light)
+            // Moon icon for light mode (to switch to dark)
+            themeToggle.innerHTML = theme === 'dark'
+                ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>'
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
+        }
+
+        // Perform search function
+        function performSearch(isLucky = false) {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            const baseUrl = isLucky
+                ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
+                : 'https://www.google.com/search?q=' + encodeURIComponent(query);
+
+            window.location.href = baseUrl;
+        }
+
+        // Auto-search suggestions
+        function fetchSuggestions(query) {
+            if (query.length < 2) {
+                suggestionsContainer.style.display = 'none';
+                prefetchIndicator.style.display = 'none';
+                return;
+            }
+
+            // Check if we already have these results cached
+            if (prefetchedResults[query]) {
+                displaySuggestions(prefetchedResults[query], query);
+                return;
+            }
+
+            // If not already fetching
+            if (!isFetching) {
+                isFetching = true;
+                prefetchIndicator.style.display = 'block';
+
+                // Simulate fetching suggestions from an API
+                // In a real implementation, you would call a real API here
+                setTimeout(() => {
+                    // Generate some fake suggestions based on the query
+                    const suggestions = generateSuggestions(query);
+                    
+                    // Cache the results
+                    prefetchedResults[query] = suggestions;
+                    
+                    // Display suggestions
+                    displaySuggestions(suggestions, query);
+                    
+                    // Reset fetching state
+                    isFetching = false;
+                    prefetchIndicator.style.display = 'none';
+                }, 300); // Simulated network delay
+            }
+        }
+
+        // Generate suggestions based on query (this would be a real API call in production)
+        function generateSuggestions(query) {
+            const commonCompletions = [
+                " meaning", " definition", " examples", " vs", " tutorial",
+                " how to", " near me", " best", " review", " price",
+                " 2025", " benefits", " results", " chart", " login"
+            ];
+            
+            const suggestions = [];
+            
+            // Add the exact query
+            suggestions.push(query);
+            
+            // Add common completions
+            for (let i = 0; i < 5; i++) {
+                const randomCompletion = commonCompletions[Math.floor(Math.random() * commonCompletions.length)];
+                suggestions.push(query + randomCompletion);
+            }
+            
+            // Add related queries (just examples for demonstration)
+            const words = query.split(' ');
+            if (words.length > 1) {
+                suggestions.push(words[0] + " guide");
+                suggestions.push("how to " + query);
+            }
+            
+            return [...new Set(suggestions)]; // Remove duplicates
+        }
+
+        // Display suggestions in the dropdown
+        function displaySuggestions(suggestions, query) {
+            suggestionsContainer.innerHTML = '';
+            
+            if (suggestions.length === 0) {
+                suggestionsContainer.style.display = 'none';
+                return;
+            }
+            
+            suggestions.forEach(suggestion => {
+                const element = document.createElement('div');
+                element.className = 'suggestion-item';
+                
+                // Highlight the matching part
+                const highlightedText = highlightMatch(suggestion, query);
+                element.innerHTML = highlightedText;
+                
+                element.addEventListener('click', () => {
+                    searchInput.value = suggestion;
+                    suggestionsContainer.style.display = 'none';
+                    // Immediately search when suggestion is clicked
+                    performSearch(false);
+                });
+                
+                suggestionsContainer.appendChild(element);
+            });
+            
+            suggestionsContainer.style.display = 'block';
+        }
+
+        // Highlight the matching part of the suggestion
+        function highlightMatch(text, query) {
+            const lowerText = text.toLowerCase();
+            const lowerQuery = query.toLowerCase();
+            const index = lowerText.indexOf(lowerQuery);
+            
+            if (index === -1) return text;
+            
+            const beforeMatch = text.substring(0, index);
+            const match = text.substring(index, index + query.length);
+            const afterMatch = text.substring(index + query.length);
+            
+            return beforeMatch + '<strong>' + match + '</strong>' + afterMatch;
+        }
+
+        // Auto-prefetch
+        function prefetchGoogle(query) {
+            if (query.length < 3) return;
+            
+            const prefetchLink = document.createElement('link');
+            prefetchLink.rel = 'prefetch';
+            prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
+            document.head.appendChild(prefetchLink);
+            
+            // Remove after a while to avoid cluttering the DOM
+            setTimeout(() => {
+                document.head.removeChild(prefetchLink);
+            }, 10000);
+        }
+
+        // Random suggestions for "I'm Feeling Lucky"
+        const randomSearches = [
+            "interesting facts about space",
+            "cute animal pictures",
+            "recipe of the day",
+            "world's most beautiful places",
+            "today in history",
+            "amazing science discoveries",
+            "relaxing music playlist",
+            "inspiring quotes",
+            "fun facts about the ocean",
+            "how to learn a new language",
+            "interesting documentaries",
+            "healthy breakfast ideas",
+            "DIY home projects",
+            "mind-blowing astronomy facts",
+            "beautiful national parks",
+            "fun brain teasers",
+            "interesting podcasts",
+            "best books of all time",
+            "virtual museum tours",
+            "incredible natural phenomena"
+        ];
+
+        // Event listeners for search
+        searchBtn.addEventListener('click', () => performSearch(false));
+        googleSearchBtn.addEventListener('click', () => performSearch(false));
+        feelingLuckyBtn.addEventListener('click', () => {
+            // Get a random search from the array
+            const randomIndex = Math.floor(Math.random() * randomSearches.length);
+            const randomSearch = randomSearches[randomIndex];
+
+            // Set the input value to the random search (optional - shows the user what's being searched)
+            searchInput.value = randomSearch;
+
+            // Perform the search
+            window.location.href = 'https://www.google.com/search?q=' + encodeURIComponent(randomSearch);
+        });
+
+        searchInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                performSearch(false);
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // Auto-search as you type
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim();
+            
+            // Clear timeout
+            clearTimeout(typingTimer);
+            
+            // If input has changed enough, fetch suggestions
+            if (Math.abs(query.length - lastInputValue.length) > 1 || 
+                !query.startsWith(lastInputValue)) {
+                fetchSuggestions(query);
+            }
+            
+            // Set a new timeout to fetch suggestions after user stops typing
+            typingTimer = setTimeout(() => {
+                fetchSuggestions(query);
+                
+                // Prefetch Google results
+                if (query.length > 2) {
+                    prefetchGoogle(query);
+                }
+            }, doneTypingInterval);
+            
+            lastInputValue = query;
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!searchInput.contains(event.target) && 
+                !suggestionsContainer.contains(event.target)) {
+                suggestionsContainer.style.display = 'none';
+            }
+        });
+
+        // Focus the search input on page load
+        window.addEventListener('load', () => {
+            searchInput.focus();
+        });
+    </script>
+</body>
+
+</html>

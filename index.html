@@ -129,14 +129,14 @@
             border-radius: 6px;
             box-sizing: border-box;
             font-family: 'Inter', sans-serif;
-            text-align: left; /* Ensure text alignment is left */
+            text-align: left;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         input::placeholder {
             color: var(--placeholder-color);
             transition: opacity 0.3s ease;
-            text-align: left; /* Ensure placeholder alignment is left */
+            text-align: left;
         }
 
         input:focus {
@@ -198,8 +198,8 @@
             animation: fadeInDown 0.8s forwards;
         }
 
-        /* Auto-search suggestions styles */
-        .suggestions-container {
+        .suggestions-container,
+        .bookmarks-container {
             position: absolute;
             width: 100%;
             max-height: 0;
@@ -209,18 +209,20 @@
             border-radius: 6px;
             margin-top: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1000; /* Increased z-index to ensure it's always on top */
+            z-index: 1000;
             text-align: left;
             opacity: 0;
             transition: max-height 0.3s ease, opacity 0.3s ease;
         }
 
-        .suggestions-container.visible {
+        .suggestions-container.visible,
+        .bookmarks-container.visible {
             max-height: 250px;
             opacity: 1;
         }
 
-        .suggestion-item {
+        .suggestion-item,
+        .bookmark-item {
             padding: 10px 15px;
             cursor: pointer;
             transition: background-color 0.2s ease, transform 0.2s ease;
@@ -228,12 +230,14 @@
             transform: translateY(10px);
         }
 
-        .suggestion-item.visible {
+        .suggestion-item.visible,
+        .bookmark-item.visible {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .suggestion-item:hover {
+        .suggestion-item:hover,
+        .bookmark-item:hover {
             background-color: var(--suggestions-hover);
         }
 
@@ -242,7 +246,6 @@
             color: var(--primary-color);
         }
 
-        /* Typing animation */
         @keyframes typing {
             from { width: 0 }
             to { width: 100% }
@@ -252,7 +255,6 @@
             50% { border-color: transparent }
         }
 
-        /* Key press animation */
         @keyframes keyPress {
             0% { transform: scale(0.98); }
             50% { transform: scale(1.02); }
@@ -269,12 +271,11 @@
             white-space: nowrap;
             margin: 0 auto;
             letter-spacing: 0.15em;
-            animation: 
+            animation:
                 typing 3.5s steps(40, end),
                 blink 0.75s step-end infinite;
         }
 
-        /* Fade in animations */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -303,7 +304,6 @@
             animation: fadeInUp 0.8s forwards 0.3s;
         }
 
-        /* Lazy loading animation */
         .lazy-load {
             opacity: 0;
             transform: translateY(20px);
@@ -315,7 +315,6 @@
             transform: translateY(0);
         }
 
-        /* Character counter */
         .char-counter {
             position: absolute;
             bottom: -20px;
@@ -330,7 +329,6 @@
             opacity: 0.8;
         }
 
-        /* Prefetch indicator */
         .prefetch-indicator {
             position: absolute;
             left: 15px;
@@ -342,7 +340,6 @@
             transition: opacity 0.3s ease;
         }
 
-        /* Animation for prefetching indicator */
         @keyframes pulse {
             0% { opacity: 0.5; }
             50% { opacity: 1; }
@@ -372,6 +369,47 @@
             transform: translateY(-50%) scale(1.2);
             color: var(--primary-color);
         }
+
+        .bookmark-button {
+            position: absolute;
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            color: var(--text-color);
+            transition: transform 0.2s ease, color 0.2s ease;
+            z-index: 1;
+        }
+
+        .bookmark-button:hover {
+            transform: translateY(-50%) scale(1.2);
+            color: var(--primary-color);
+        }
+
+        .bookmark-item a {
+            color: var(--primary-color);
+            text-decoration: none;
+            flex-grow: 1;
+            margin-right: 10px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .bookmark-item button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+        }
+
+        .bookmark-item button:hover {
+            color: var(--primary-color);
+        }
     </style>
 </head>
 
@@ -395,9 +433,9 @@
 
             <div class="input-container">
                 <span class="prefetch-indicator" id="prefetch-indicator"><span class="prefetching">⟳</span></span>
-                <input 
-                    type="text" 
-                    id="search-input" 
+                <input
+                    type="text"
+                    id="search-input"
                     placeholder="Start typing to search..."
                     autocomplete="off"
                     data-lpignore="true"
@@ -414,8 +452,14 @@
                         <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2M12 8v8M8 12h8"/>
                     </svg>
                 </button>
+                <button id="bookmark-btn" class="bookmark-button" title="Bookmark this search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                    </svg>
+                </button>
                 <div class="suggestions-container" id="suggestions-container"></div>
                 <div class="char-counter" id="char-counter">0/100</div>
+                <div class="bookmarks-container" id="bookmarks-container"></div>
             </div>
 
         </div>
@@ -434,23 +478,19 @@
         const suggestionsContainer = document.getElementById('suggestions-container');
         const charCounter = document.getElementById('char-counter');
         const aiSearchBtn = document.getElementById('ai-search-btn');
+        const bookmarkBtn = document.getElementById('bookmark-btn');
+        const bookmarksContainer = document.getElementById('bookmarks-container');
 
-        // Prefetch management
         let lastInputValue = '';
         let typingTimer;
         let prefetchedResults = {};
         let isFetching = false;
         let isTyping = false;
-        const doneTypingInterval = 300; // wait time in ms after user stops typing
-        
-        // Lazy loading implementation
+        const doneTypingInterval = 300;
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Initial loading animation is handled by CSS
-            
-            // Handle lazy loading elements
             const lazyElements = document.querySelectorAll('.lazy-load');
-            
-            // Function to check if an element is in viewport
+
             function isInViewport(element) {
                 const rect = element.getBoundingClientRect();
                 return (
@@ -460,8 +500,7 @@
                     rect.right <= (window.innerWidth || document.documentElement.clientWidth)
                 );
             }
-            
-            // Function to handle lazy loading
+
             function handleLazyLoad() {
                 lazyElements.forEach(element => {
                     if (isInViewport(element)) {
@@ -469,15 +508,12 @@
                     }
                 });
             }
-            
-            // Initial check
+
             setTimeout(handleLazyLoad, 100);
-            
-            // Add scroll event listener
+
             window.addEventListener('scroll', handleLazyLoad);
         });
-        
-        // Theme toggle functionality
+
         themeToggle.addEventListener('click', () => {
             const html = document.documentElement;
             if (html.getAttribute('data-theme') === 'light') {
@@ -491,13 +527,11 @@
             }
         });
 
-        // Load saved theme preference
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             document.documentElement.setAttribute('data-theme', savedTheme);
             updateThemeIcon(savedTheme);
         } else {
-            // Check for system preference if no saved theme
             const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             if (prefersDark) {
                 document.documentElement.setAttribute('data-theme', 'dark');
@@ -506,24 +540,17 @@
         }
 
         function updateThemeIcon(theme) {
-            // Sun icon for dark mode (to switch to light)
-            // Moon icon for light mode (to switch to dark)
             themeToggle.innerHTML = theme === 'dark'
                 ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>'
                 : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
         }
 
-        // Perform search function
-        function performSearch(isLucky = false) {
-            const query = searchInput.value.trim();
+        function performSearch(query, isLucky = false) {
             if (!query) return;
 
-            // URL pattern to check if input is a web address
             const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
-            
-            // Handle URL input
+
             if (urlPattern.test(query)) {
-                // Add https:// if no protocol specified
                 const url = query.startsWith('http') ? query : 'https://' + query;
                 setTimeout(() => {
                     window.location.href = url;
@@ -531,7 +558,6 @@
                 return;
             }
 
-            // Handle regular search
             const baseUrl = isLucky
                 ? 'https://www.google.com/search?q=' + encodeURIComponent(query) + '&btnI'
                 : 'https://www.google.com/search?q=' + encodeURIComponent(query);
@@ -541,147 +567,121 @@
             }, 300);
         }
 
-        // Auto-search suggestions with animation
         function fetchSuggestions(query) {
             if (query.length < 2) {
                 suggestionsContainer.classList.remove('visible');
                 return;
             }
 
-            // Check if we already have these results cached
             if (prefetchedResults[query]) {
                 displaySuggestions(prefetchedResults[query], query);
                 return;
             }
 
-            // If not already fetching
             if (!isFetching) {
                 isFetching = true;
 
-                // Simulate fetching suggestions from an API
-                // In a real implementation, you would call a real API here
                 setTimeout(() => {
-                    // Generate some fake suggestions based on the query
                     const suggestions = generateSuggestions(query);
-                    
-                    // Cache the results
+
                     prefetchedResults[query] = suggestions;
-                    
-                    // Display suggestions
+
                     displaySuggestions(suggestions, query);
-                    
-                    // Reset fetching state
+
                     isFetching = false;
-                }, 300); // Simulated network delay
+                }, 300);
             }
         }
 
-        // Generate suggestions based on query (this would be a real API call in production)
         function generateSuggestions(query) {
             const commonCompletions = [
                 " meaning", " definition", " examples", " vs", " tutorial",
                 " how to", " near me", " best", " review", " price",
                 " 2025", " benefits", " results", " chart", " login"
             ];
-            
+
             const suggestions = [];
-            
-            // Add the exact query
+
             suggestions.push(query);
-            
-            // Add common completions (limit to 3 random completions)
+
             for (let i = 0; i < 3; i++) {
                 const randomCompletion = commonCompletions[Math.floor(Math.random() * commonCompletions.length)];
                 suggestions.push(query + randomCompletion);
             }
-            
-            // Add only one related query if there are multiple words
-            const words = query.split(' ');
-            if (words.length > 1) {
+
+            if (query.split(' ').length > 1) {
                 suggestions.push("how to " + query);
             }
-            
-            // Remove duplicates and limit to 5 results
+
             return [...new Set(suggestions)].slice(0, 5);
         }
 
-        // Display suggestions in the dropdown with staggered animation
         function displaySuggestions(suggestions, query) {
             suggestionsContainer.innerHTML = '';
-            
+
             if (suggestions.length === 0) {
                 suggestionsContainer.classList.remove('visible');
                 return;
             }
-            
-            // First show container with smooth animation
+
             suggestionsContainer.classList.add('visible');
-            
-            // Then add items with staggered animation
+
             suggestions.forEach((suggestion, index) => {
                 const element = document.createElement('div');
                 element.className = 'suggestion-item';
-                
-                // Highlight the matching part
+
                 const highlightedText = highlightMatch(suggestion, query);
                 element.innerHTML = highlightedText;
-                
+
                 element.addEventListener('click', () => {
                     searchInput.value = suggestion;
                     suggestionsContainer.classList.remove('visible');
-                    // Immediately search when suggestion is clicked
-                    performSearch(false);
+                    performSearch(suggestion, false);
                 });
-                
+
                 suggestionsContainer.appendChild(element);
-                
-                // Animate items with staggered delay
+
                 setTimeout(() => {
                     element.classList.add('visible');
                 }, 50 * index);
             });
         }
 
-        // Highlight the matching part of the suggestion
         function highlightMatch(text, query) {
             const lowerText = text.toLowerCase();
             const lowerQuery = query.toLowerCase();
             const index = lowerText.indexOf(lowerQuery);
-            
+
             if (index === -1) return text;
-            
+
             const beforeMatch = text.substring(0, index);
             const match = text.substring(index, index + query.length);
             const afterMatch = text.substring(index + query.length);
-            
+
             return beforeMatch + '<strong>' + match + '</strong>' + afterMatch;
         }
 
-        // Auto-prefetch with lazy loading
         function prefetchGoogle(query) {
             if (query.length < 3) return;
-            
-            // Only prefetch if the user has been idle for a moment
+
             clearTimeout(typingTimer);
-            
+
             typingTimer = setTimeout(() => {
                 const prefetchLink = document.createElement('link');
                 prefetchLink.rel = 'prefetch';
                 prefetchLink.href = 'https://www.google.com/search?q=' + encodeURIComponent(query);
                 document.head.appendChild(prefetchLink);
-                
-                // Remove after a while to avoid cluttering the DOM
+
                 setTimeout(() => {
                     document.head.removeChild(prefetchLink);
                 }, 10000);
             }, 500);
         }
 
-        // Character counter function
         function updateCharCounter() {
             const count = searchInput.value.length;
             charCounter.textContent = count + '/100';
-            
+
             if (count > 0) {
                 charCounter.classList.add('visible');
             } else {
@@ -689,37 +689,30 @@
             }
         }
 
-        // Event listeners for search
-        searchBtn.addEventListener('click', () => performSearch(false));
+        searchBtn.addEventListener('click', () => performSearch(searchInput.value, false));
 
         searchInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
-                performSearch(false);
+                performSearch(searchInput.value, false);
                 suggestionsContainer.classList.remove('visible');
             }
         });
 
-        // Add key press animation
         searchInput.addEventListener('keydown', function(e) {
-            // Don't animate modifier keys or function keys
             if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') {
                 this.classList.add('key-press');
-                
-                // Remove the class after animation completes
+
                 setTimeout(() => {
                     this.classList.remove('key-press');
                 }, 150);
             }
         });
 
-        // Auto-search as you type with smooth animation
         searchInput.addEventListener('input', function () {
             const query = this.value.trim();
-            
-            // Update character counter
+
             updateCharCounter();
-            
-            // Add typing animation
+
             if (!isTyping && query.length > 0) {
                 isTyping = true;
                 searchInput.classList.add('input-active');
@@ -727,45 +720,38 @@
                 isTyping = false;
                 searchInput.classList.remove('input-active');
             }
-            
-            // Clear timeout
+
             clearTimeout(typingTimer);
-            
-            // If input has changed enough, fetch suggestions
-            if (Math.abs(query.length - lastInputValue.length) > 1 || 
+
+            if (Math.abs(query.length - lastInputValue.length) > 1 ||
                 !query.startsWith(lastInputValue)) {
                 fetchSuggestions(query);
             }
-            
-            // Set a new timeout to fetch suggestions after user stops typing
+
             typingTimer = setTimeout(() => {
                 fetchSuggestions(query);
-                
-                // Prefetch Google results
+
                 if (query.length > 2) {
                     prefetchGoogle(query);
                 }
             }, doneTypingInterval);
-            
+
             lastInputValue = query;
         });
 
-        // Focus and blur animations for search input
         searchInput.addEventListener('focus', function() {
             if (this.value.length > 0) {
                 fetchSuggestions(this.value);
             }
         });
 
-        // Close suggestions when clicking outside
         document.addEventListener('click', function(event) {
-            if (!searchInput.contains(event.target) && 
+            if (!searchInput.contains(event.target) &&
                 !suggestionsContainer.contains(event.target)) {
                 suggestionsContainer.classList.remove('visible');
             }
         });
 
-        // Lazy load the lazy-load elements
         function lazyLoadElements() {
             const elements = document.querySelectorAll('.lazy-load');
             elements.forEach((element, index) => {
@@ -775,15 +761,13 @@
             });
         }
 
-        // Focus the search input on page load and initialize lazy loading
         window.addEventListener('load', () => {
             setTimeout(() => {
                 lazyLoadElements();
                 searchInput.focus();
-            }, 800); // Delay to allow initial animations to complete
+            }, 800);
         });
 
-        // Intersection Observer for lazy loading elements on scroll
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -801,9 +785,76 @@
 
         aiSearchBtn.addEventListener('click', () => {
             const query = searchInput.value.trim();
-            // Replace current window with Perplexity AI
             window.location.href = 'https://www.perplexity.ai/';
         });
+
+        bookmarkBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                addBookmark(query);
+                displayBookmarks();
+            }
+            bookmarksContainer.classList.toggle('visible');
+        });
+
+        function addBookmark(url) {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+            const bookmarkExists = bookmarks.some(bookmark => bookmark.url === url);
+
+            if (!bookmarkExists) {
+                const bookmark = { url, timestamp: new Date().toISOString() };
+                bookmarks.push(bookmark);
+                localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            }
+        }
+
+        function displayBookmarks() {
+            const bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+            bookmarksContainer.innerHTML = '';
+
+            bookmarks.forEach((bookmark, index) => {
+                const bookmarkElement = document.createElement('div');
+                bookmarkElement.className = 'bookmark-item';
+                bookmarkElement.innerHTML = `
+                    <a href="#" class="bookmark-link" data-url="${bookmark.url}">${bookmark.url}</a>
+                    <button class="remove-bookmark-btn" data-index="${index}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                `;
+                bookmarksContainer.appendChild(bookmarkElement);
+
+                setTimeout(() => {
+                    bookmarkElement.classList.add('visible');
+                }, 50 * index);
+            });
+
+            document.querySelectorAll('.remove-bookmark-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = this.getAttribute('data-index');
+                    removeBookmark(index);
+                    displayBookmarks();
+                });
+            });
+
+            document.querySelectorAll('.bookmark-link').forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    performSearch(url, false);
+                });
+            });
+        }
+
+        function removeBookmark(index) {
+            let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || [];
+            bookmarks.splice(index, 1);
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+        }
+
+        displayBookmarks();
     </script>
 </body>
 

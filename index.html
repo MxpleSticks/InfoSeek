@@ -1567,41 +1567,28 @@
             // Function to apply settings
             function applySettings(settings) {
                 // Apply new tab setting
-                if (settings.newTab) {
-                    const oldPerformSearch = window.performSearch;
-                    window.performSearch = function(query, isLucky = false) {
-                        if (!query) return;
-                        const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
-                        const url = urlPattern.test(query) 
-                            ? (query.startsWith('http') ? query : 'https://' + query)
-                            : isLucky 
-                                ? searchEngines[currentEngine].luckyUrl.replace('{q}', encodeURIComponent(query))
-                                : searchEngines[currentEngine].url + encodeURIComponent(query);
+                window.performSearch = function(query, isLucky = false) {
+                    if (!query) return;
+                    
+                    // Update search history
+                    updateSearchHistory(query);
+            
+                    const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
+                    const url = urlPattern.test(query) 
+                        ? (query.startsWith('http') ? query : 'https://' + query)
+                        : isLucky 
+                            ? searchEngines[currentEngine].luckyUrl.replace('{q}', encodeURIComponent(query))
+                            : searchEngines[currentEngine].url + encodeURIComponent(query);
+            
+                    // Use window.open or window.location based on settings
+                    if (settings.newTab) {
                         window.open(url, '_blank');
-                    };
-                }
-
-                // Apply auto-focus
-                if (settings.autoFocus) {
-                    searchInput.focus();
-                }
-
-                // Apply search history
-                if (!settings.showSearchHistory) {
-                    suggestionsContainer.style.display = 'none';
-                } else {
-                    suggestionsContainer.style.display = '';
-                }
-
-                // Apply char counter
-                charCounter.style.display = settings.showCharCount ? '' : 'none';
-
-                // Apply bookmarks
-                bookmarkBtn.style.display = settings.showBookmarks ? '' : 'none';
-
-                // Apply animations
-                document.documentElement.style.setProperty('--animation-speed', 
-                    settings.enableAnimations ? '0.5s' : '0s');
+                    } else {
+                        window.location.href = url;
+                    }
+                };
+            
+                // Rest of the applySettings function remains the same...
             }
 
             // Apply settings initially

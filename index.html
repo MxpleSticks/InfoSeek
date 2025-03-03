@@ -604,6 +604,24 @@
                 opacity: 1;
             }
         }
+
+        .settings-option {
+            margin: 10px 0;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .toggle-label input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--primary-color);
+        }
     </style>
 </head>
 
@@ -681,6 +699,15 @@
                         <button id="export-data" class="settings-btn">Export Data</button>
                         <button id="import-data" class="settings-btn">Import Data</button>
                         <input type="file" id="import-file" accept=".json" style="display: none;">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>Behavior Settings</h3>
+                    <div class="settings-option">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="new-tab-setting">
+                            Open searches in new tab
+                        </label>
                     </div>
                 </div>
             </div>
@@ -769,11 +796,15 @@
             updateSearchHistory(query);
 
             const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
+            const openInNewTab = localStorage.getItem('openInNewTab') === 'true';
 
             if (urlPattern.test(query)) {
                 const url = query.startsWith('http') ? query : 'https://' + query;
-                // Immediate navigation without delay
-                window.location.href = url;
+                if (openInNewTab) {
+                    window.open(url, '_blank');
+                } else {
+                    window.location.href = url;
+                }
                 return;
             }
 
@@ -782,8 +813,11 @@
                 engine.luckyUrl.replace('{q}', encodeURIComponent(query)) :
                 engine.url + encodeURIComponent(query);
 
-            // Immediate navigation without delay
-            window.location.href = searchUrl;
+            if (openInNewTab) {
+                window.open(searchUrl, '_blank');
+            } else {
+                window.location.href = searchUrl;
+            }
         }
 
         // Function to update search history
@@ -1196,19 +1230,25 @@
                 }, 50 * index);
             });
 
+            // Update click handlers for bookmark links
+            document.querySelectorAll('.bookmark-link').forEach(link => {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    const openInNewTab = localStorage.getItem('openInNewTab') === 'true';
+                    if (openInNewTab) {
+                        window.open(url, '_blank');
+                    } else {
+                        performSearch(url, false);
+                    }
+                });
+            });
+
             document.querySelectorAll('.remove-bookmark-btn').forEach(button => {
                 button.addEventListener('click', function () {
                     const index = this.getAttribute('data-index');
                     removeBookmark(index);
                     displayBookmarks();
-                });
-            });
-
-            document.querySelectorAll('.bookmark-link').forEach(link => {
-                link.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const url = this.getAttribute('data-url');
-                    performSearch(url, false);
                 });
             });
         }
@@ -1358,6 +1398,7 @@
         const exportDataBtn = document.getElementById('export-data');
         const importDataBtn = document.getElementById('import-data');
         const importFile = document.getElementById('import-file');
+        const newTabSetting = document.getElementById('new-tab-setting');
 
         settingsBtn.addEventListener('click', () => {
             settingsModal.style.display = 'flex'; // Change to 'flex' instead of 'block'
@@ -1379,7 +1420,8 @@
                 searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '{}'),
                 bookmarks: JSON.parse(localStorage.getItem('bookmarks') || '[]'),
                 theme: localStorage.getItem('theme'),
-                searchEngine: localStorage.getItem('searchEngine')
+                searchEngine: localStorage.getItem('searchEngine'),
+                openInNewTab: localStorage.getItem('openInNewTab') === 'true'
             };
 
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1405,31 +1447,37 @@
                 reader.onload = (event) => {
                     try {
                         const data = JSON.parse(event.target.result);
-                        
+
                         // Import search history
                         if (data.searchHistory) {
                             localStorage.setItem('searchHistory', JSON.stringify(data.searchHistory));
                         }
-                        
+
                         // Import bookmarks
                         if (data.bookmarks) {
                             localStorage.setItem('bookmarks', JSON.stringify(data.bookmarks));
                             displayBookmarks();
                         }
-                        
+
                         // Import theme
                         if (data.theme) {
                             localStorage.setItem('theme', data.theme);
                             document.documentElement.setAttribute('data-theme', data.theme);
                             updateThemeIcon(data.theme);
                         }
-                        
+
                         // Import search engine preference
                         if (data.searchEngine) {
                             localStorage.setItem('searchEngine', data.searchEngine);
                             currentEngine = data.searchEngine;
                         }
-                        
+
+                        // Import openInNewTab setting
+                        if (data.openInNewTab !== undefined) {
+                            localStorage.setItem('openInNewTab', data.openInNewTab);
+                            newTabSetting.checked = data.openInNewTab;
+                        }
+
                         alert('Data imported successfully!');
                     } catch (error) {
                         alert('Error importing data. Please make sure the file is valid.');
@@ -1438,6 +1486,14 @@
                 };
                 reader.readAsText(file);
             }
+        });
+
+        // Load saved preference
+        newTabSetting.checked = localStorage.getItem('openInNewTab') === 'true';
+
+        // Save preference when changed
+        newTabSetting.addEventListener('change', function () {
+            localStorage.setItem('openInNewTab', this.checked);
         });
     </script>
 </body>

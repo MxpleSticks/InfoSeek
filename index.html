@@ -422,7 +422,7 @@
 
         .bookmark-button:hover {
             transform: translateY(-50%) scale(1.2);
-            color: var(--primary-color);
+            color: var (--primary-color);
         }
 
         .bookmark-item a {
@@ -479,6 +479,131 @@
             background-color: var(--primary-color);
             color: white;
         }
+
+        .settings-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .settings-content {
+            position: relative;
+            background-color: var(--bg-color);
+            padding: 20px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .settings-header h2 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--text-color);
+        }
+
+        .close-settings {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .settings-body {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .settings-section h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: var(--text-color);
+        }
+
+        .settings-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .settings-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .settings-btn:hover {
+            background-color: var(--btn-hover);
+        }
+
+        .settings-and-theme-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+            margin-bottom: 15px;
+        }
+
+        .settings-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .settings-button:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translate(0, -20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 
@@ -491,12 +616,18 @@
                 <p>Stop searching, start finding. InfoSeek delivers the web's best information, instantly. ✨</p>
             </div>
 
-            <div class="theme-toggle-container lazy-load">
-                <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+            <div class="settings-and-theme-container lazy-load">
+                <button id="settings-btn" class="settings-button" title="Settings">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+                        <path
+                            d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z">
+                        </path>
+                        <circle cx="12" cy="12" r="3"></circle>
                     </svg>
+                </button>
+                <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+
                 </button>
             </div>
 
@@ -535,6 +666,25 @@
         <a href="https://github.com/MxpleSticks">MapleSticks</a> •
         <a href="https://github.com/MxpleSticks/PowerKey">PowerKey</a> •
         <a href="https://github.com/MxpleSticks/InfoSeek">Source</a>
+    </div>
+
+    <div id="settings-modal" class="settings-modal">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>Settings</h2>
+                <button id="close-settings" class="close-settings">&times;</button>
+            </div>
+            <div class="settings-body">
+                <div class="settings-section">
+                    <h3>Data Management</h3>
+                    <div class="settings-buttons">
+                        <button id="export-data" class="settings-btn">Export Data</button>
+                        <button id="import-data" class="settings-btn">Import Data</button>
+                        <input type="file" id="import-file" accept=".json" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -628,7 +778,7 @@
             }
 
             const engine = searchEngines[currentEngine];
-            const searchUrl = isLucky ? 
+            const searchUrl = isLucky ?
                 engine.luckyUrl.replace('{q}', encodeURIComponent(query)) :
                 engine.url + encodeURIComponent(query);
 
@@ -744,6 +894,12 @@
             suggestions.forEach((suggestion, index) => {
                 const element = document.createElement('div');
                 element.className = 'suggestion-item';
+                element.style.display = 'flex';
+                element.style.justifyContent = 'space-between';
+                element.style.alignItems = 'center';
+
+                const textSpan = document.createElement('span');
+                textSpan.style.flexGrow = '1';
 
                 // Highlight the match
                 const highlightedText = highlightMatch(suggestion, query);
@@ -752,9 +908,51 @@
                 const isTopSearch = topSearches.includes(suggestion);
                 const topSearchIndicator = isTopSearch ? ' <span style="color: var(--primary-color); font-size: 0.8em;">★</span>' : '';
 
-                element.innerHTML = highlightedText + topSearchIndicator;
+                textSpan.innerHTML = highlightedText + topSearchIndicator;
 
-                element.addEventListener('click', () => {
+                // Add delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>`;
+                deleteBtn.style.background = 'none';
+                deleteBtn.style.border = 'none';
+                deleteBtn.style.padding = '4px';
+                deleteBtn.style.cursor = 'pointer';
+                deleteBtn.style.color = 'var(--text-color)';
+                deleteBtn.style.opacity = '0.6';
+                deleteBtn.style.transition = 'opacity 0.2s ease';
+                deleteBtn.title = 'Remove from history';
+
+                deleteBtn.addEventListener('mouseover', () => {
+                    deleteBtn.style.opacity = '1';
+                    deleteBtn.style.color = 'var(--primary-color)';
+                });
+
+                deleteBtn.addEventListener('mouseout', () => {
+                    deleteBtn.style.opacity = '0.6';
+                    deleteBtn.style.color = 'var(--text-color)';
+                });
+
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Prevent triggering the parent click event
+                    removeFromSearchHistory(suggestion);
+                    element.remove();
+
+                    // If no more suggestions, hide the container
+                    if (suggestionsContainer.children.length === 1) { // 1 because of engine selector
+                        suggestionsContainer.classList.remove('visible');
+                    }
+                });
+
+                element.appendChild(textSpan);
+                element.appendChild(deleteBtn);
+
+                // Click handler for the suggestion
+                textSpan.addEventListener('click', () => {
                     searchInput.value = suggestion;
                     suggestionsContainer.classList.remove('visible');
                     performSearch(suggestion, false);
@@ -771,7 +969,7 @@
             if (!document.querySelector('.engine-selector')) {
                 const engineSelector = document.createElement('div');
                 engineSelector.className = 'engine-selector';
-                
+
                 Object.keys(searchEngines).forEach(engineKey => {
                     const btn = document.createElement('button');
                     btn.className = `engine-btn ${engineKey === currentEngine ? 'active' : ''}`;
@@ -784,9 +982,16 @@
                     };
                     engineSelector.appendChild(btn);
                 });
-                
+
                 suggestionsContainer.appendChild(engineSelector);
             }
+        }
+
+        // Add this new function to handle removing items from search history
+        function removeFromSearchHistory(query) {
+            let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || {};
+            delete searchHistory[query];
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
         }
 
         function highlightMatch(text, query) {
@@ -1019,11 +1224,11 @@
         let selectedIndex = -1;
         let currentContainer = null;
 
-        searchInput.addEventListener('keydown', function(e) {
+        searchInput.addEventListener('keydown', function (e) {
             // Get the active container (suggestions or bookmarks)
-            const activeContainer = suggestionsContainer.classList.contains('visible') ? 
-                suggestionsContainer : bookmarksContainer.classList.contains('visible') ? 
-                bookmarksContainer : null;
+            const activeContainer = suggestionsContainer.classList.contains('visible') ?
+                suggestionsContainer : bookmarksContainer.classList.contains('visible') ?
+                    bookmarksContainer : null;
 
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -1053,20 +1258,20 @@
             if (!activeContainer) return;
 
             const items = activeContainer.children;
-            
-            switch(e.key) {
+
+            switch (e.key) {
                 case 'ArrowDown':
                     e.preventDefault();
                     selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
                     updateSelection(items);
                     break;
-                    
+
                 case 'ArrowUp':
                     e.preventDefault();
                     selectedIndex = Math.max(selectedIndex - 1, -1);
                     updateSelection(items);
                     break;
-                    
+
                 case 'Escape':
                     activeContainer.classList.remove('visible');
                     selectedIndex = -1;
@@ -1079,7 +1284,7 @@
             Array.from(items).forEach(item => {
                 item.style.backgroundColor = '';
             });
-            
+
             // Highlight selected item
             if (selectedIndex >= 0) {
                 items[selectedIndex].style.backgroundColor = 'var(--suggestions-hover)';
@@ -1094,14 +1299,14 @@
 
         // Add to existing displaySuggestions function after suggestionsContainer.innerHTML = '';
         const originalDisplaySuggestions = displaySuggestions;
-        displaySuggestions = function(suggestions, query) {
+        displaySuggestions = function (suggestions, query) {
             resetSelection();
             originalDisplaySuggestions(suggestions, query);
         };
 
         // Add to existing displayBookmarks function after bookmarksContainer.innerHTML = '';
         const originalDisplayBookmarks = displayBookmarks;
-        displayBookmarks = function() {
+        displayBookmarks = function () {
             resetSelection();
             originalDisplayBookmarks();
         };
@@ -1145,6 +1350,95 @@
                 }, 10000);
             }, 500);
         }
+
+        // Settings Modal functionality
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettings = document.getElementById('close-settings');
+        const exportDataBtn = document.getElementById('export-data');
+        const importDataBtn = document.getElementById('import-data');
+        const importFile = document.getElementById('import-file');
+
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'flex'; // Change to 'flex' instead of 'block'
+        });
+
+        closeSettings.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === settingsModal) {
+                settingsModal.style.display = 'none';
+            }
+        });
+
+        // Export functionality
+        exportDataBtn.addEventListener('click', () => {
+            const data = {
+                searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '{}'),
+                bookmarks: JSON.parse(localStorage.getItem('bookmarks') || '[]'),
+                theme: localStorage.getItem('theme'),
+                searchEngine: localStorage.getItem('searchEngine')
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'infoseek-data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Import functionality
+        importDataBtn.addEventListener('click', () => {
+            importFile.click();
+        });
+
+        importFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        
+                        // Import search history
+                        if (data.searchHistory) {
+                            localStorage.setItem('searchHistory', JSON.stringify(data.searchHistory));
+                        }
+                        
+                        // Import bookmarks
+                        if (data.bookmarks) {
+                            localStorage.setItem('bookmarks', JSON.stringify(data.bookmarks));
+                            displayBookmarks();
+                        }
+                        
+                        // Import theme
+                        if (data.theme) {
+                            localStorage.setItem('theme', data.theme);
+                            document.documentElement.setAttribute('data-theme', data.theme);
+                            updateThemeIcon(data.theme);
+                        }
+                        
+                        // Import search engine preference
+                        if (data.searchEngine) {
+                            localStorage.setItem('searchEngine', data.searchEngine);
+                            currentEngine = data.searchEngine;
+                        }
+                        
+                        alert('Data imported successfully!');
+                    } catch (error) {
+                        alert('Error importing data. Please make sure the file is valid.');
+                        console.error('Import error:', error);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
     </script>
 </body>
 

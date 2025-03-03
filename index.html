@@ -604,26 +604,6 @@
                 opacity: 1;
             }
         }
-
-        .setting-item {
-            margin: 10px 0;
-            display: flex;
-            align-items: center;
-        }
-
-        .setting-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            color: var(--text-color);
-        }
-
-        .setting-label input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            cursor: pointer;
-        }
     </style>
 </head>
 
@@ -701,33 +681,6 @@
                         <button id="export-data" class="settings-btn">Export Data</button>
                         <button id="import-data" class="settings-btn">Import Data</button>
                         <input type="file" id="import-file" accept=".json" style="display: none;">
-                    </div>
-                </div>
-                <div class="settings-section">
-                    <h3>Search Settings</h3>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="newTabSetting">
-                            Open search in new tab
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="showSearchHistorySetting" checked>
-                            Show search history in suggestions
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="showCharCountSetting" checked>
-                            Show character counter
-                        </label>
-                    </div>
-                    <div class="setting-item">
-                        <label class="setting-label">
-                            <input type="checkbox" id="showBookmarksSetting" checked>
-                            Enable bookmarks feature
-                        </label>
                     </div>
                 </div>
             </div>
@@ -1426,13 +1379,7 @@
                 searchHistory: JSON.parse(localStorage.getItem('searchHistory') || '{}'),
                 bookmarks: JSON.parse(localStorage.getItem('bookmarks') || '[]'),
                 theme: localStorage.getItem('theme'),
-                searchEngine: localStorage.getItem('searchEngine'),
-                settings: {
-                    newTab: localStorage.getItem('setting_newTab') === 'true',
-                    showSearchHistory: localStorage.getItem('setting_showSearchHistory') !== 'false',
-                    showCharCount: localStorage.getItem('setting_showCharCount') !== 'false',
-                    showBookmarks: localStorage.getItem('setting_showBookmarks') !== 'false'
-                }
+                searchEngine: localStorage.getItem('searchEngine')
             };
 
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1491,108 +1438,6 @@
                 };
                 reader.readAsText(file);
             }
-        });
-
-        // Update the settings initialization in the DOMContentLoaded event listener
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize settings with defaults
-            const settings = {
-                newTab: false,
-                showSearchHistory: true,
-                showCharCount: true,
-                showBookmarks: true
-            };
-
-            // Load saved settings
-            Object.keys(settings).forEach(key => {
-                const savedValue = localStorage.getItem(`setting_${key}`);
-                if (savedValue !== null) {
-                    settings[key] = savedValue === 'true';
-                }
-            });
-
-            // Initialize checkboxes with current values
-            const settingsElements = {
-                newTab: document.getElementById('newTabSetting'),
-                showSearchHistory: document.getElementById('showSearchHistorySetting'),
-                showCharCount: document.getElementById('showCharCountSetting'),
-                showBookmarks: document.getElementById('showBookmarksSetting')
-            };
-
-            // Rest of the settings code remains the same...
-        });
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize settings with defaults
-            const settings = {
-                newTab: false,
-                autoFocus: true,
-                showSearchHistory: true,
-                showCharCount: true,
-                showBookmarks: true,
-                enableAnimations: true
-            };
-
-            // Load saved settings
-            Object.keys(settings).forEach(key => {
-                const savedValue = localStorage.getItem(`setting_${key}`);
-                if (savedValue !== null) {
-                    settings[key] = savedValue === 'true';
-                }
-            });
-
-            // Initialize checkboxes with current values
-            const settingsElements = {
-                newTab: document.getElementById('newTabSetting'),
-                autoFocus: document.getElementById('autoFocusSetting'),
-                showSearchHistory: document.getElementById('showSearchHistorySetting'),
-                showCharCount: document.getElementById('showCharCountSetting'),
-                showBookmarks: document.getElementById('showBookmarksSetting'),
-                enableAnimations: document.getElementById('enableAnimationsSetting')
-            };
-
-            // Set initial checkbox states
-            Object.entries(settingsElements).forEach(([key, element]) => {
-                if (element) {
-                    element.checked = settings[key];
-                    // Add change listener
-                    element.addEventListener('change', (e) => {
-                        settings[key] = e.target.checked;
-                        localStorage.setItem(`setting_${key}`, e.target.checked);
-                        applySettings(settings);
-                    });
-                }
-            });
-
-            // Function to apply settings
-            function applySettings(settings) {
-                // Apply new tab setting
-                window.performSearch = function(query, isLucky = false) {
-                    if (!query) return;
-                    
-                    // Update search history
-                    updateSearchHistory(query);
-            
-                    const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
-                    const url = urlPattern.test(query) 
-                        ? (query.startsWith('http') ? query : 'https://' + query)
-                        : isLucky 
-                            ? searchEngines[currentEngine].luckyUrl.replace('{q}', encodeURIComponent(query))
-                            : searchEngines[currentEngine].url + encodeURIComponent(query);
-            
-                    // Use window.open or window.location based on settings
-                    if (settings.newTab) {
-                        window.open(url, '_blank');
-                    } else {
-                        window.location.href = url;
-                    }
-                };
-            
-                // Rest of the applySettings function remains the same...
-            }
-
-            // Apply settings initially
-            applySettings(settings);
         });
     </script>
 </body>

@@ -622,6 +622,139 @@
             margin: 0;
             accent-color: var(--primary-color);
         }
+
+        .preview-container {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 50vw;
+            /* Increased width */
+            height: 80vh;
+            background: var(--bg-color);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .preview-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .preview-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: calc(100% - 41px);
+            border: none;
+            border-radius: 0 0 8px 8px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translate(100px, -50%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(0, -50%);
+            }
+        }
+
+        .preview-search-button {
+            position: absolute;
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 8px;
+            /* Changed from 6px to 8px to match other buttons */
+            width: 46px;
+            /* Added to ensure consistent width */
+            height: 46px;
+            /* Added to ensure consistent height */
+            color: var(--text-color);
+            transition: all 0.2s ease;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .preview-search-button:hover {
+            transform: translateY(-50%) scale(1.1);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: var(--bg-color);
+        }
+
+        /* Update SVG size to fit the container better */
+        .preview-search-button svg {
+            width: 20px;
+            /* Match other button icon sizes */
+            height: 20px;
+            /* Match other button icon sizes */
+        }
+
+        .embed-error {
+            display: inline-block !important;
+            position: absolute;
+            top: -8px;
+            /* Adjusted from 0 to 4px to center vertically */
+            left: 50%;
+            transform: translate(-50%, 0);
+            text-align: center;
+            color: var(--placeholder-color);
+            font-size: 12px;
+            opacity: 0.8;
+            pointer-events: none;
+            z-index: 1001;
+            padding: 20px 0;
+            /* Reduced padding from 12px to 8px */
+            background: none !important;
+            width: auto;
+        }
+
+        .embed-error p {
+            margin: 0;
+            padding: 0;
+            color: var(--placeholder-color);
+        }
+
+        .embed-error h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
     </style>
 </head>
 
@@ -675,6 +808,31 @@
                 <div class="suggestions-container" id="suggestions-container"></div>
                 <div class="char-counter" id="char-counter">0/100</div>
                 <div class="bookmarks-container" id="bookmarks-container"></div>
+                <div id="preview-container" class="preview-container">
+                    <div class="preview-header">
+                        <span id="preview-title">Preview</span>
+                        <div class="preview-buttons">
+                            <button id="open-full-page" class="preview-btn" title="Open in full page">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                                </svg>
+                            </button>
+                            <button id="close-preview" class="preview-btn" title="Close preview">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <iframe id="preview-frame" class="preview-frame"></iframe>
+                    <div id="embed-error" class="embed-error">
+                        <h3>Preview Unavailable</h3>
+                        <p>Preview only works with normal Bing searches and websites that allow embedding.</p>
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -1235,10 +1393,19 @@
                 link.addEventListener('click', function (event) {
                     event.preventDefault();
                     const url = this.getAttribute('data-url');
+                    const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
                     const openInNewTab = localStorage.getItem('openInNewTab') === 'true';
-                    if (openInNewTab) {
-                        window.open(url, '_blank');
+                    
+                    if (urlPattern.test(url)) {
+                        // Add https:// if not present
+                        const fullUrl = url.startsWith('http') ? url : 'https://' + url;
+                        if (openInNewTab) {
+                            window.open(fullUrl, '_blank');
+                        } else {
+                            window.location.href = fullUrl;
+                        }
                     } else {
+                        // Handle as search query
                         performSearch(url, false);
                     }
                 });
@@ -1495,6 +1662,122 @@
         newTabSetting.addEventListener('change', function () {
             localStorage.setItem('openInNewTab', this.checked);
         });
+
+        // Add after the existing button declarations
+        const previewSearchBtn = document.createElement('button');
+        previewSearchBtn.className = 'preview-search-button';
+        previewSearchBtn.title = 'Preview search';
+        previewSearchBtn.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        `;
+
+        // Insert the preview button into the input container
+        const inputContainer = document.querySelector('.input-container');
+        inputContainer.insertBefore(previewSearchBtn, bookmarkBtn);
+
+        // Add preview functionality
+        const previewContainer = document.getElementById('preview-container');
+        const previewFrame = document.getElementById('preview-frame');
+        const openFullPage = document.getElementById('open-full-page');
+        const closePreview = document.getElementById('close-preview');
+        const previewTitle = document.getElementById('preview-title');
+
+        previewSearchBtn.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (!query) return;
+
+            // Check if input is a URL
+            const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
+            let previewUrl;
+
+            if (urlPattern.test(query)) {
+                // Always add https:// for direct URLs if not present
+                previewUrl = query.startsWith('http') ? query : 'https://' + query;
+                previewTitle.textContent = `Preview: ${previewUrl}`;
+            } else {
+                // Use Bing for searches since it works better with preview
+                previewUrl = searchEngines.bing.url + encodeURIComponent(query);
+                previewTitle.textContent = `Preview: Search for "${query}"`;
+            }
+
+            // Load the URL in the preview frame
+            previewFrame.src = previewUrl;
+            previewContainer.style.display = 'block';
+        });
+
+        openFullPage.addEventListener('click', () => {
+            const openInNewTab = localStorage.getItem('openInNewTab') === 'true';
+            if (openInNewTab) {
+                window.open(previewFrame.src, '_blank');
+            } else {
+                window.location.href = previewFrame.src;
+            }
+        });
+
+        closePreview.addEventListener('click', () => {
+            previewContainer.style.display = 'none';
+            previewFrame.src = '';
+            document.getElementById('embed-error').style.display = 'none';
+        });
+
+        // Close preview when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!previewContainer.contains(e.target) &&
+                !previewSearchBtn.contains(e.target) &&
+                previewContainer.style.display === 'block') {
+                previewContainer.style.display = 'none';
+                previewFrame.src = '';
+                document.getElementById('embed-error').style.display = 'none';
+            }
+        });
+
+        // Add ESC key handler to close preview
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && previewContainer.style.display === 'block') {
+                previewContainer.style.display = 'none';
+                previewFrame.src = '';
+                document.getElementById('embed-error').style.display = 'none';
+            }
+        });
+
+        previewFrame.addEventListener('load', () => {
+            previewFrame.style.display = 'block';
+        });
+
+        // First, update the CSS for embed-error
+        const style = document.createElement('style');
+        style.textContent = `
+        .embed-error {
+            display: block !important; /* Always show */
+            position: absolute;
+            bottom: 10px; /* Position at bottom */
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: var(--text-color);
+            padding: 10px;
+            background-color: var(--bg-color);
+            border-radius: 4px;
+            font-size: 12px;
+            opacity: 0.8;
+            pointer-events: none; /* Don't interfere with iframe interaction */
+            z-index: 1001;
+        }
+
+        .embed-error p {
+            margin: 0;
+            color: var(--placeholder-color);
+        }
+        `;
+        document.head.appendChild(style);
+
+        // Update the HTML for the embed-error div
+        document.getElementById('embed-error').innerHTML = `
+    <p>Note: Only Bing searches can be previewed. Some websites may not allow previewing.</p>
+    `;
     </script>
 </body>
 

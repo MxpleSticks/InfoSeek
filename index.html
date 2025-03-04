@@ -646,11 +646,44 @@
             align-items: center;
             padding: 10px 15px;
             border-bottom: 1px solid var(--input-border);
+            position: relative;
+            /* Add this */
+        }
+
+        .preview-header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+            position: relative;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            color: var(--text-color);
+            text-align: left; /* Ensure left alignment */
+            margin-left: 15px; /* Add left margin for spacing */
+            position: static; /* Remove absolute positioning */
+        }
+
+        .preview-note {
+            font-size: 12px;
+            color: var(--placeholder-color);
+            opacity: 0.8;
+            text-align: center;
+            width: 100%;
+            position: relative; /* Change from absolute to relative */
+            left: 0; /* Reset left position */
+            transform: none; /* Remove transform */
         }
 
         .preview-buttons {
             display: flex;
             gap: 8px;
+            margin-left: auto;
+            /* Add this */
+            z-index: 1;
+            /* Add this */
         }
 
         .preview-btn {
@@ -690,32 +723,24 @@
 
         .preview-search-button {
             position: absolute;
-            left: -50px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            border-radius: 6px;
+            left: 0;
+            top: -43px;
+            /* Position above the search bar */
+            transform: none;
+            /* Remove the Y-axis transform */
+            background: none;
+            border: none;
             cursor: pointer;
             padding: 8px;
-            /* Changed from 6px to 8px to match other buttons */
-            width: 46px;
-            /* Added to ensure consistent width */
-            height: 46px;
-            /* Added to ensure consistent height */
             color: var(--text-color);
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, color 0.2s ease;
             z-index: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .preview-search-button:hover {
-            transform: translateY(-50%) scale(1.1);
+            transform: scale(1.1);
+            /* Only scale on hover, no Y-axis transform */
             color: var(--primary-color);
-            border-color: var(--primary-color);
-            background: var(--bg-color);
         }
 
         /* Update SVG size to fit the container better */
@@ -724,36 +749,6 @@
             /* Match other button icon sizes */
             height: 20px;
             /* Match other button icon sizes */
-        }
-
-        .embed-error {
-            display: inline-block !important;
-            position: absolute;
-            top: -8px;
-            /* Adjusted from 0 to 4px to center vertically */
-            left: 50%;
-            transform: translate(-50%, 0);
-            text-align: center;
-            color: var(--placeholder-color);
-            font-size: 12px;
-            opacity: 0.8;
-            pointer-events: none;
-            z-index: 1001;
-            padding: 20px 0;
-            /* Reduced padding from 12px to 8px */
-            background: none !important;
-            width: auto;
-        }
-
-        .embed-error p {
-            margin: 0;
-            padding: 0;
-            color: var(--placeholder-color);
-        }
-
-        .embed-error h3 {
-            margin-bottom: 10px;
-            font-size: 18px;
         }
     </style>
 </head>
@@ -810,7 +805,11 @@
                 <div class="bookmarks-container" id="bookmarks-container"></div>
                 <div id="preview-container" class="preview-container">
                     <div class="preview-header">
-                        <span id="preview-title">Preview</span>
+                        <div class="preview-header-content">
+                            <span id="preview-title">Preview</span>
+                            <span class="preview-note">Note: Only Bing searches can be previewed. Some websites may not
+                                allow previewing.</span>
+                        </div>
                         <div class="preview-buttons">
                             <button id="open-full-page" class="preview-btn" title="Open in full page">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -828,10 +827,6 @@
                         </div>
                     </div>
                     <iframe id="preview-frame" class="preview-frame"></iframe>
-                    <div id="embed-error" class="embed-error">
-                        <h3>Preview Unavailable</h3>
-                        <p>Preview only works with normal Bing searches and websites that allow embedding.</p>
-                    </div>
                 </div>
             </div>
 
@@ -944,7 +939,7 @@
         function updateThemeIcon(theme) {
             themeToggle.innerHTML = theme === 'dark'
                 ? '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>'
-                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg>';
+                : '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 0 1 1-9-9Z"></path></svg>';
         }
 
         function performSearch(query, isLucky = false) {
@@ -1395,7 +1390,7 @@
                     const url = this.getAttribute('data-url');
                     const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?$/i;
                     const openInNewTab = localStorage.getItem('openInNewTab') === 'true';
-                    
+
                     if (urlPattern.test(url)) {
                         // Add https:// if not present
                         const fullUrl = url.startsWith('http') ? url : 'https://' + url;
@@ -1668,11 +1663,12 @@
         previewSearchBtn.className = 'preview-search-button';
         previewSearchBtn.title = 'Preview search';
         previewSearchBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-            </svg>
-        `;
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+        <circle cx="12" cy="12" r="3"/>
+    </svg>
+`;
 
         // Insert the preview button into the input container
         const inputContainer = document.querySelector('.input-container');
